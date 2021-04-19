@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1618868401 source:c:\users\maria\desktop\facu\arquitectura de computadoras\mv\mvx\main.c
+	<stdio.h>
+	<stdlib.h>
+

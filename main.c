@@ -13,8 +13,8 @@ int main(char *argv[])
 
     if ((arch = fopen(argv[1], "r")) == NULL)
         return 1;
-    while(fread(RAM[i],sizeof(int),arch)!=NULL)
-      i++;
+    while(fread(RAM[i],sizeof(int),1,arch)!=NULL)
+        i++;
     DS = i-1;
 
     REG[5] = 0; //IP
