@@ -1,21 +1,25 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "decoinst.h"
 
+int RAM[4096];
+int REG[16];
 
+void prueba();
 
-int main(char *argv[])
+int main(/*char *argv[]*/)
 {
-    FILE* arch;
-    int RAM[4096];
-    int REG[16];
+
     int instruccion;
     int i=0,DS;
 
-    if ((arch = fopen(argv[1], "r")) == NULL)
+    /*
+    if ((arch = fopen(argv[1], "rb")) == NULL)
         return 1;
     while(fread(RAM[i],sizeof(int),1,arch)!=NULL)
-        i++;
+      i++;
     DS = i-1;
+    */
 
     REG[5] = 0; //IP
 
@@ -31,3 +35,9 @@ int main(char *argv[])
 
     return 0;
 }
+
+void prueba(){
+  REG[5] = 10;
+}
+
+
