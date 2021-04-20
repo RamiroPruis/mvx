@@ -1,33 +1,89 @@
+#include <stdlib.h>
 #include "decoinst.h"
 
-void decInstruccion(int instruccion){
+
+void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
+{
+  int toA = -1, toB = -1;
+  int voAux = 0;
+  int voBux = 0;
+
+  //Cargamos los tipos de oprando
+  if (cantOperandos == 2)
+  {
+    toA = (instruccion >> 26) & 0x00000003;
+    toB = (instruccion >> 24) & 0x00000003;
+    voAux = (instruccion >> 12) & 0x00000FFF;
+    voBux = instruccion & 0x00000FFF;
+    //       A
+    if (toA == 0x00)
+    {
+      *voA = (int **)malloc(sizeof(int *));
+      **voA = voAux;
+    }
+
+    else if (toA == 0x01)
+      **voA = voAux;
+
+    else
+      **voA = RAM[(voAux + REG[0])];
+
+    //      B
+    if (toB == 0x00)
+    {
+      *voB = (int **)malloc(sizeof(int *));
+      **voB = voBux;
+    }
+    else if (toB == 0x01)
+      **voB = voBux;
+    else
+      **voB = RAM[(voBux + REG[0])];
+  }
+  else if (cantOperandos == 1)
+  {
+    toA = (instruccion >> 22) & 0x00000003;
+    voAux = instruccion & 0x0000FFFF;
+    //       A
+    if (toA == 0x00)
+    {
+      *voA = (int **)malloc(sizeof(int *));
+      **voA = voAux;
+    }
+    else if (toA == 0x01)
+      **voA = voAux;
+
+    else
+      **voA = RAM[(voAux + REG[0])];
+  }
+}
+
+void decInstruccion(int instruccion,int *cantOperando){
   int codigo;
-  int cantOperando;
 
   if ((instruccion >> 24) == 0xFF){
     //codigo 0 op
-    cantOperando = 0;
+    *cantOperando = 0;
     codigo = instruccion >> 20;
   }
   else
     if ((instruccion >> 28) == 0xF){
       //codigo 1op
-      cantOperando = 1;
+      *cantOperando = 1;
       codigo = instruccion >> 24;
     }
     else{
       //codigo 2op
-      cantOperando = 2;
+      *cantOperando = 2;
       codigo = instruccion >> 28;
     }
 }
 
 void cambiaCC(int val){
   if (val == 0)
-      REG[8] = 0x80000000;
+      REG[8] = 1;
     else
       if (val < 0)
-        REG[8] = 1;
+        REG[8] = 0x80000000;
       else
         REG[8] = 0;
 
@@ -44,7 +100,6 @@ void ADD(int *valA,int *valB){
 
   *valA = *valA + *valB;
   cambiaCC(*valA);
-
 
 }
 
@@ -71,6 +126,104 @@ void DIV(int *valA,int *valB){
   cambiaCC(*valA);
 
 }
+
+void SWAP(int *valA, int *valB){
+  int aux = *valA;
+
+  *valA = *valB;
+  *valB = aux;
+
+}
+
+void CMP(int *valA, int *valB){
+  int aux = *valA - *valB;
+
+  cambiaCC(aux);
+}
+
+void SHL(int *valA, int *valB){
+
+  *valA = *valA << *valB;
+
+  cambiaCC(*valA);
+
+}
+
+void SHR(int *valA, int *valB){
+
+  *valA = *valA >> *valB;
+
+  cambiaCC(*valA);
+
+}
+
+void AND(int *valA, int *valB){
+    (*valA)=*valA&*valB;
+    cambiaCC(*valA);
+}
+
+void OR(int *valA, int *valB){
+    *valA=*valA | *valB;
+    cambiaCC(*valA);
+}
+
+void XOR(int *valA, int *valB){
+    *valA=*valA ^ *valB;
+    cambiaCC(*valA);
+}
+
+void JMP(int *valA, int *valB){
+    REG[5]=*valA;
+}
+
+void JZ(int *valA, int *valB){
+    if (REG[8]==1)
+        REG[5]=*valA;
+}
+
+void JP(int *valA, int *valB){
+    if (REG[8]>0)
+        REG[5]=*valA;
+}
+
+void JN(int *valA, int *valB){
+    if (REG[8]==0x80000000)
+        REG[5]=*valA;
+}
+
+void JNZ(int *valA, int *valB){
+    if (REG[8]==0)
+        REG[5]=*valA;
+}
+
+void JNP(int *valA, int *valB){
+
+}
+
+void JNN(int *valA, int *valB){
+
+}
+
+
+
+void NOT(int *valA, int *valB){
+
+  *valA = ~(*valA);
+  cambiaCC(*valA);
+
+}
+
+void STOP(int *valA,int *valB){
+
+  REG[5] = REG[0];
+
+}
+
+
+
+
+
+
 
 
 
