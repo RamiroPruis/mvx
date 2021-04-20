@@ -1,3 +1,4 @@
+#include "decoinst.h"
 
 void decInstruccion(int instruccion){
   int codigo;
@@ -19,8 +20,62 @@ void decInstruccion(int instruccion){
       cantOperando = 2;
       codigo = instruccion >> 28;
     }
+}
+
+void cambiaCC(int val){
+  if (val == 0)
+      REG[8] = 0x80000000;
+    else
+      if (val < 0)
+        REG[8] = 1;
+      else
+        REG[8] = 0;
 
 }
+
+//OPERACIONES
+void MOV(int *valA,int *valB){
+
+  *valA = *valB;
+
+}
+
+void ADD(int *valA,int *valB){
+
+  *valA = *valA + *valB;
+  cambiaCC(*valA);
+
+
+}
+
+void SUB(int *valA,int *valB){
+
+  *valA = *valA - *valB;
+
+  cambiaCC(*valA);
+
+}
+
+void MUL(int *valA,int *valB){
+
+  *valA = *valA * (*valB);
+
+  cambiaCC(*valA);
+
+}
+
+void DIV(int *valA,int *valB){
+
+  *valA = (int) *valA / (*valB);
+  REG[9] = *valA % (*valB);
+  cambiaCC(*valA);
+
+}
+
+
+
+
+
 
 
 

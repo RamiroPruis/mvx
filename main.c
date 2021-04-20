@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include "decoinst.h"
 
-int RAM[4096];
-int REG[16];
+
 
 void prueba();
 
@@ -23,6 +22,7 @@ int main(/*char *argv[]*/)
 
     REG[5] = 0; //IP
 
+
     while(REG[5]>=0 && REG[5]<DS){
       //Obtener proxima instruccion
       instruccion = RAM[REG[5]];
@@ -33,11 +33,12 @@ int main(/*char *argv[]*/)
 
     }
 
+
     return 0;
 }
 
-void prueba(){
-  REG[5] = 10;
-}
+
+
+
 
 
