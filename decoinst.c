@@ -9,6 +9,9 @@ void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
   int voAux = 0;
   int voBux = 0;
 
+  static int *voAStatic;
+  static int *voBStatic;
+
   //Cargamos los tipos de oprando
   if (cantOperandos == 2)
   {
@@ -19,8 +22,8 @@ void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
     //       A
     if (toA == 0x00)
     {
-      *voA = (int **)malloc(sizeof(int *));
-      **voA = voAux;
+      *voA = voAux;
+      *voA = &voA;
     }
 
     else if (toA == 0x01)
@@ -32,8 +35,8 @@ void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
     //      B
     if (toB == 0x00)
     {
-      *voB = (int **)malloc(sizeof(int *));
-      **voB = voBux;
+      *voBStatic = voBux;
+      **voB = &voBStatic;
     }
     else if (toB == 0x01)
       **voB = voBux;
@@ -47,8 +50,8 @@ void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
     //       A
     if (toA == 0x00)
     {
-      *voA = (int **)malloc(sizeof(int *));
-      **voA = voAux;
+      *voA = voAux;
+      *voA = &voA;
     }
     else if (toA == 0x01)
       **voA = voAux;
@@ -96,7 +99,7 @@ void cargaFunciones()
   vecFunciones[9] = AND;
   vecFunciones[10] = OR;
   vecFunciones[11] = XOR;
-  //vecFunciones[12] = SYS;
+  vecFunciones[12] = SYS;
   vecFunciones[13] = JMP;
   vecFunciones[14] = JZ;
   vecFunciones[15] = JP;
@@ -104,9 +107,9 @@ void cargaFunciones()
   vecFunciones[17] = JNZ;
   vecFunciones[18] = JNP;
   vecFunciones[19] = JNN;
-  //vecFunciones[20] = LDL;
-  //vecFunciones[21] = LDH;
-  //vecFunciones[22] = RND;
+  vecFunciones[20] = LDL;
+  vecFunciones[21] = LDH;
+  vecFunciones[22] = RND;
   vecFunciones[23] = NOT;
   vecFunciones[24] = STOP;
 }
@@ -124,7 +127,6 @@ void cambiaCC(int val)
 //OPERACIONES
 void MOV(int *valA, int *valB)
 {
-
   *valA = *valB;
 }
 
@@ -239,10 +241,16 @@ void JNZ(int *valA, int *valB)
 
 void JNP(int *valA, int *valB)
 {
+  if (REG[8] == 0x8000000 || REG[8] == 1)
+    REG[5] = *valA;
 }
 
 void JNN(int *valA, int *valB)
 {
+  if (REG[8] == 0 || REG[8] == 1)
+  {
+    REG[5] = *valA;
+  }
 }
 
 void NOT(int *valA, int *valB)
@@ -258,169 +266,22 @@ void STOP(int *valA, int *valB)
   REG[5] = REG[0];
 }
 
-void SYS(int *valA, int *valB)
+void LDL(int *valA, int *valB)
 {
 
-  char *vec;
-  int *vecInt;
-  int idInicia, condicion;
-  int i = 1;
-  int bitPrompt, bitEndLine, bitHexa, bitOctal, bitDecimal, bitDefault;
-  //Caso LECTURA
-  if (*valA == 1)
-  {
-    //Ahora reservamos memoria dinamica del vector dependiendo CX==reg[6], acordarse de al final hacer un free
-    vec = (char *)malloc(sizeof(char) * REG[6]);
+  REG[9] = REG[9] & 0xFFFFFF00;
+  *valA = *valA & 0x000000FF;
+  REG[9] = REG[9] | *valA;
+}
 
-    if (!((REG[4] >> 11) & 0x00000001)) //Prompt
-    {
-      idInicia = REG[7];
-      while (i <= REG[6])
-      {
-        printf("[%04d]:", idInicia);
-        scanf("%c", vec);
-        vec++;
-        idInicia++;
-        printf("\n");
-      }
-    }
-    else //Sin prompt
-    {
-      while (i <= REG[6])
-      {
-        scanf("%c", vec);
-        vec++;
-        printf("\n");
-      }
-    }
-    //Ahora vemos como tenemos que interpretar su contenido
-    if (!((REG[4] >> 8) & 0x00000001))
-    {
-      idInicia = REG[7];
-      //Debemos interpretar (hexa,oct,decimal)
-      //Hexa
-      if ((REG[4] >> 3) & 0x00000001)
-      {
-        for (int i = 0; i < REG[6]; i++)
-        {
-          RAM[idInicia] = strtol(*vec, NULL, 16); //Cambia de string a la base deseada en int
-          vec++;
-          idInicia++;
-        }
-      }
-      //Octal
-      else if ((REG[4] >> 2) & 0x00000001)
-      {
-        for (int i = 0; i < REG[6]; i++)
-        {
-          RAM[idInicia] = strtol(*vec, NULL, 8);
-          vec++;
-          idInicia++;
-        }
-      }
-      //Decimal
-      else if (REG[4] & 0x00000001)
-      {
-        for (int i = 0; i < REG[6]; i++)
-        {
-          RAM[idInicia] = strtol(*vec, NULL, 10);
-          vec++;
-          idInicia++;
-        }
-      }
-      else
-        printf("Error. No especifica en que sistema numerico interpretar los datos\n");
-    }
-    else
-    {
-      //Añadimos a la memoria tal y como esta el vector
-      for (int i = 0; i < REG[6]; i++)
-      {
-        RAM[idInicia] = *vec;
-        vec++;
-        idInicia++;
-      }
-    }
-    RAM[idInicia] = '%00'; //Caracter final (comun a todos los casos) (menos para los errores, ver que onda)
-    free(vec);             //Para todos los casos
-  }
+void LDH(int *valA, int *valB)
+{
+  REG[9] = REG[9] & 0x00FFFFFF;
+  *valA = (*valA & 0x000000FF) << 24;
+  REG[9] = REG[9] | *valA;
+}
 
-  //Caso ESCRITURA
-  else if (*valA == 2)
-  {
-    idInicia = REG[7]; //DX
-    bitPrompt = (REG[4] >> 11) & 0x00000001;
-    bitEndLine = (REG[4] >> 8) & 0x00000001;
-    bitDefault = (REG[4] >> 4) & 0x00000001;
-    bitHexa = (REG[4] >> 3) & 0x00000001;
-    bitOctal = (REG[4] >> 2) & 0x00000001;
-    bitDecimal = REG[4] & 0x00000001;
-
-    if (bitDecimal || bitDefault || bitHexa || bitOctal)
-    {
-      for (int i = 0; i < REG[6]; i++)
-      {
-        //Con prompt
-        if (bitPrompt)
-        {
-
-          if (bitEndLine)
-          {
-            if (bitHexa)
-              printf("[%04d]: %x\n", idInicia, RAM[idInicia]);
-            else if (bitOctal)
-              printf("[%04d]: %o\n", idInicia, RAM[idInicia]);
-            else if (bitDecimal)
-              printf("[%04d]: %d\n", idInicia, RAM[idInicia]);
-            else
-              printf("[%04d]: %c\n", idInicia, RAM[idInicia]);
-          }
-          else
-          {
-            if (bitHexa)
-              printf("[%04d]: %x", idInicia, RAM[idInicia]);
-            else if (bitOctal)
-              printf("[%04d]: %o", idInicia, RAM[idInicia]);
-            else if (bitDecimal)
-              printf("[%04d]: %d", idInicia, RAM[idInicia]);
-            else
-              printf("[%04d]: %c", idInicia, RAM[idInicia]);
-          }
-        }
-        //Sin prompt
-        else
-        {
-          if (bitEndLine)
-          {
-            if (bitHexa)
-              printf("%x\n", idInicia, RAM[idInicia]);
-            else if (bitOctal)
-              printf("%o\n", idInicia, RAM[idInicia]);
-            else if (bitDecimal)
-              printf("%d\n", idInicia, RAM[idInicia]);
-            else
-              printf("c\n", idInicia, RAM[idInicia]);
-          }
-          else
-          {
-            if (bitHexa)
-              printf("%x", idInicia, RAM[idInicia]);
-            else if (bitOctal)
-              printf("%o", idInicia, RAM[idInicia]);
-            else if (bitDecimal)
-              printf("%d", idInicia, RAM[idInicia]);
-            else
-              printf("c", idInicia, RAM[idInicia]);
-          }
-        }
-        idInicia++;
-      }
-      if (!bitEndLine)
-        printf("\n"); //Para que haga un salto de linea
-    }
-    else
-      printf("Error, no se indica como interpretar el contenido para la escritura\n");
-  }
-  else
-    printf("Error, SYS no interpreta ese argumento\n");
+void RND(int *valA, int *valB)
+{
+  *valA = rand() % *valB;
 }
