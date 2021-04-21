@@ -261,15 +261,17 @@ void STOP(int *valA, int *valB)
 void SYS(int *valA, int *valB)
 {
 
-  char aux;
-  char *vec = &aux;
-  int idInicia;
+  char *vec;
+  int *vecInt;
+  int idInicia, condicion;
   int i = 1;
-  //Ahora reservamos memoria dinamica del vector dependiendo CX==reg[6], acordarse de al final hacer un free
-  vec = (char *)malloc(sizeof(char) * REG[6]);
+  int bitPrompt, bitEndLine, bitHexa, bitOctal, bitDecimal, bitDefault;
   //Caso LECTURA
   if (*valA == 1)
   {
+    //Ahora reservamos memoria dinamica del vector dependiendo CX==reg[6], acordarse de al final hacer un free
+    vec = (char *)malloc(sizeof(char) * REG[6]);
+
     if (!((REG[4] >> 11) & 0x00000001)) //Prompt
     {
       idInicia = REG[7];
@@ -301,7 +303,7 @@ void SYS(int *valA, int *valB)
       {
         for (int i = 0; i < REG[6]; i++)
         {
-          RAM[idInicia] = strtol(*vec, NULL, 16);
+          RAM[idInicia] = strtol(*vec, NULL, 16); //Cambia de string a la base deseada en int
           vec++;
           idInicia++;
         }
@@ -340,83 +342,85 @@ void SYS(int *valA, int *valB)
       }
     }
     RAM[idInicia] = '%00'; //Caracter final (comun a todos los casos) (menos para los errores, ver que onda)
+    free(vec);             //Para todos los casos
   }
 
   //Caso ESCRITURA
-  else if (*valA == 1)
+  else if (*valA == 2)
   {
-    //Primero vemos que interpretacion tenemos que guardar en el vector y luego imprimimos
-    //Byte menos significativo como CARACTER
-    if ((REG[4] >> 4) & 0x00000001)
+    idInicia = REG[7]; //DX
+    bitPrompt = (REG[4] >> 11) & 0x00000001;
+    bitEndLine = (REG[4] >> 8) & 0x00000001;
+    bitDefault = (REG[4] >> 4) & 0x00000001;
+    bitHexa = (REG[4] >> 3) & 0x00000001;
+    bitOctal = (REG[4] >> 2) & 0x00000001;
+    bitDecimal = REG[4] & 0x00000001;
+
+    if (bitDecimal || bitDefault || bitHexa || bitOctal)
     {
-    }
-    //Hexa
-    else if ((REG[4] >> 3) & 0x00000001)
-    {
-    }
-    //Octal
-    else if ((REG[4] >> 2) & 0x00000001)
-    {
-    }
-    //Decimal
-    else if (REG[4] & 0x00000001)
-    {
+      for (int i = 0; i < REG[6]; i++)
+      {
+        //Con prompt
+        if (bitPrompt)
+        {
+
+          if (bitEndLine)
+          {
+            if (bitHexa)
+              printf("[%04d]: %x\n", idInicia, RAM[idInicia]);
+            else if (bitOctal)
+              printf("[%04d]: %o\n", idInicia, RAM[idInicia]);
+            else if (bitDecimal)
+              printf("[%04d]: %d\n", idInicia, RAM[idInicia]);
+            else
+              printf("[%04d]: %c\n", idInicia, RAM[idInicia]);
+          }
+          else
+          {
+            if (bitHexa)
+              printf("[%04d]: %x", idInicia, RAM[idInicia]);
+            else if (bitOctal)
+              printf("[%04d]: %o", idInicia, RAM[idInicia]);
+            else if (bitDecimal)
+              printf("[%04d]: %d", idInicia, RAM[idInicia]);
+            else
+              printf("[%04d]: %c", idInicia, RAM[idInicia]);
+          }
+        }
+        //Sin prompt
+        else
+        {
+          if (bitEndLine)
+          {
+            if (bitHexa)
+              printf("%x\n", idInicia, RAM[idInicia]);
+            else if (bitOctal)
+              printf("%o\n", idInicia, RAM[idInicia]);
+            else if (bitDecimal)
+              printf("%d\n", idInicia, RAM[idInicia]);
+            else
+              printf("c\n", idInicia, RAM[idInicia]);
+          }
+          else
+          {
+            if (bitHexa)
+              printf("%x", idInicia, RAM[idInicia]);
+            else if (bitOctal)
+              printf("%o", idInicia, RAM[idInicia]);
+            else if (bitDecimal)
+              printf("%d", idInicia, RAM[idInicia]);
+            else
+              printf("c", idInicia, RAM[idInicia]);
+          }
+        }
+        idInicia++;
+      }
+      if (!bitEndLine)
+        printf("\n"); //Para que haga un salto de linea
     }
     else
-      printf("Error, no indica como imprimir los caracteres\n"); //Deberiamos poner una bandera para ver si se pudo interpretar bien y comenzar con la escritura
-
-    //Si se pudo interpretar
-    if (algo)
-    {
-      idInicia = REG[7];
-      //Vemos si es con o sin prompt
-      if (!((REG[4] >> 11) & 0x00000001)) //Prompt
-      {
-        //Vemos si es con endline
-        if (!((REG[4] >> 8) & 0x00000001))
-          for (int i = 0; i < REG[6]; i++)
-          {
-            printf("[%04d]: %s\n", idInicia, vec);
-            vec++;
-            idInicia++;
-          }
-        else
-        { //Sin endline
-          for (int i = 0; i < REG[6]; i++)
-          {
-            printf("[%04d]: %s", idInicia, vec);
-            vec++;
-            idInicia++;
-          }
-          printf("\n");
-        }
-      }
-      else
-      { //Sin prompt
-        //Vemos si es con endline
-        if (!((REG[4] >> 8) & 0x00000001))
-        {
-          for (int i = 0; i < REG[6]; i++)
-          {
-            printf("%s\n", vec);
-            vec++;
-            idInicia++;
-          }
-        }
-        else
-        { //Sin endline
-          for (int i = 0; i < REG[6]; i++)
-          {
-            printf("%s", vec);
-            vec++;
-            idInicia++;
-          }
-          printf("\n");
-        }
-      }
-    }
+      printf("Error, no se indica como interpretar el contenido para la escritura\n");
   }
   else
     printf("Error, SYS no interpreta ese argumento\n");
-  free(vec); //Para todos los casos
 }
