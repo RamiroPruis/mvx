@@ -260,166 +260,67 @@ void STOP(int *valA, int *valB)
 
 void SYS(int *valA, int *valB)
 {
+  char prompt[10]="";
+  char cad[100]={"\0"};
+  char entrada[100];
+  int i,condChar=0;
 
-  char *vec;
-  int *vecInt;
-  int idInicia, condicion;
-  int i = 1;
-  int bitPrompt, bitEndLine, bitHexa, bitOctal, bitDecimal, bitDefault;
+  if ((REG[10] & 0x800) == 0)
+      strcpy(prompt,"[%04d]: ");
+  else
+      strcpy(prompt,"");
+
+
+
   //Caso LECTURA
   if (*valA == 1)
   {
-    //Ahora reservamos memoria dinamica del vector dependiendo CX==reg[6], acordarse de al final hacer un free
-    vec = (char *)malloc(sizeof(char) * REG[6]);
+    if ((REG[10] & 0x100)!= 0){
+      strcat(cad,"%c");
+      condChar=1;
+    }
+    else{
+      if ((REG[10] & 0x8)!= 0)
+        strcat(cad,"%x ");
+      if ((REG[10] & 0x4)!= 0)
+        strcat(cad,"%o ");
+      if ((REG[10] & 0x1)!= 0)
+        strcat(cad,"%d ");
+    }
 
-    if (!((REG[4] >> 11) & 0x00000001)) //Prompt
-    {
-      idInicia = REG[7];
-      while (i <= REG[6])
-      {
-        printf("[%04d]:", idInicia);
-        scanf("%c", vec);
-        vec++;
-        idInicia++;
-        printf("\n");
+
+    if(condChar==0)
+      for(i=0;i<REG[12];i++){
+        printf(prompt,REG[13]+i);
+        scanf(cad,&(RAM[REG[0] + REG[13] + i]));
       }
-    }
-    else //Sin prompt
-    {
-      while (i <= REG[6])
-      {
-        scanf("%c", vec);
-        vec++;
-        printf("\n");
-      }
-    }
-    //Ahora vemos como tenemos que interpretar su contenido
-    if (!((REG[4] >> 8) & 0x00000001))
-    {
-      idInicia = REG[7];
-      //Debemos interpretar (hexa,oct,decimal)
-      //Hexa
-      if ((REG[4] >> 3) & 0x00000001)
-      {
-        for (int i = 0; i < REG[6]; i++)
-        {
-          RAM[idInicia] = strtol(*vec, NULL, 16); //Cambia de string a la base deseada en int
-          vec++;
-          idInicia++;
-        }
-      }
-      //Octal
-      else if ((REG[4] >> 2) & 0x00000001)
-      {
-        for (int i = 0; i < REG[6]; i++)
-        {
-          RAM[idInicia] = strtol(*vec, NULL, 8);
-          vec++;
-          idInicia++;
-        }
-      }
-      //Decimal
-      else if (REG[4] & 0x00000001)
-      {
-        for (int i = 0; i < REG[6]; i++)
-        {
-          RAM[idInicia] = strtol(*vec, NULL, 10);
-          vec++;
-          idInicia++;
-        }
-      }
-      else
-        printf("Error. No especifica en que sistema numerico interpretar los datos\n");
-    }
     else
     {
-      //Añadimos a la memoria tal y como esta el vector
-      for (int i = 0; i < REG[6]; i++)
-      {
-        RAM[idInicia] = *vec;
-        vec++;
-        idInicia++;
-      }
+      printf(prompt,REG[13]);
+      scanf("%s",entrada);
+      for(i=0;entrada[i];i++)
+        RAM[REG[0] + REG[13] + i] = entrada[i];
     }
-    RAM[idInicia] = '%00'; //Caracter final (comun a todos los casos) (menos para los errores, ver que onda)
-    free(vec);             //Para todos los casos
   }
-
   //Caso ESCRITURA
   else if (*valA == 2)
   {
-    idInicia = REG[7]; //DX
-    bitPrompt = (REG[4] >> 11) & 0x00000001;
-    bitEndLine = (REG[4] >> 8) & 0x00000001;
-    bitDefault = (REG[4] >> 4) & 0x00000001;
-    bitHexa = (REG[4] >> 3) & 0x00000001;
-    bitOctal = (REG[4] >> 2) & 0x00000001;
-    bitDecimal = REG[4] & 0x00000001;
+      if ((REG[10] & 0x10)!= 0)
+        strcat(cad,"%c");
+      if ((REG[10] & 0x8)!= 0)
+        strcat(cad,"%X");
+      if ((REG[10] & 0x4)!= 0)
+        strcat(cad,"%o");
+      if ((REG[10] & 0x1)!= 0)
+        strcat(cad,"%d");
+      if ((REG[10] & 0x100) == 0)
+        strcat(cad,"\n");
 
-    if (bitDecimal || bitDefault || bitHexa || bitOctal)
-    {
-      for (int i = 0; i < REG[6]; i++)
-      {
-        //Con prompt
-        if (bitPrompt)
-        {
 
-          if (bitEndLine)
-          {
-            if (bitHexa)
-              printf("[%04d]: %x\n", idInicia, RAM[idInicia]);
-            else if (bitOctal)
-              printf("[%04d]: %o\n", idInicia, RAM[idInicia]);
-            else if (bitDecimal)
-              printf("[%04d]: %d\n", idInicia, RAM[idInicia]);
-            else
-              printf("[%04d]: %c\n", idInicia, RAM[idInicia]);
-          }
-          else
-          {
-            if (bitHexa)
-              printf("[%04d]: %x", idInicia, RAM[idInicia]);
-            else if (bitOctal)
-              printf("[%04d]: %o", idInicia, RAM[idInicia]);
-            else if (bitDecimal)
-              printf("[%04d]: %d", idInicia, RAM[idInicia]);
-            else
-              printf("[%04d]: %c", idInicia, RAM[idInicia]);
-          }
-        }
-        //Sin prompt
-        else
-        {
-          if (bitEndLine)
-          {
-            if (bitHexa)
-              printf("%x\n", idInicia, RAM[idInicia]);
-            else if (bitOctal)
-              printf("%o\n", idInicia, RAM[idInicia]);
-            else if (bitDecimal)
-              printf("%d\n", idInicia, RAM[idInicia]);
-            else
-              printf("c\n", idInicia, RAM[idInicia]);
-          }
-          else
-          {
-            if (bitHexa)
-              printf("%x", idInicia, RAM[idInicia]);
-            else if (bitOctal)
-              printf("%o", idInicia, RAM[idInicia]);
-            else if (bitDecimal)
-              printf("%d", idInicia, RAM[idInicia]);
-            else
-              printf("c", idInicia, RAM[idInicia]);
-          }
-        }
-        idInicia++;
-      }
-      if (!bitEndLine)
-        printf("\n"); //Para que haga un salto de linea
+    for(i=0;i<REG[12];i++){
+      printf(prompt,REG[13]+i);
+      printf(cad,RAM[REG[0]+REG[13]+i],RAM[REG[0]+REG[13]+i],RAM[REG[0]+REG[13]+i],RAM[REG[0]+REG[13]+i]);
     }
-    else
-      printf("Error, no se indica como interpretar el contenido para la escritura\n");
   }
   else
     printf("Error, SYS no interpreta ese argumento\n");
