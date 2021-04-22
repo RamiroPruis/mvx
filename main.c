@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include "decoinst.h"
 
-void prueba();
-
 int main(/*char *argv[]*/)
 {
 
@@ -14,8 +12,8 @@ int main(/*char *argv[]*/)
 
   *voA = 2;
   REG[0] = 15;
-  REG[10] = 0x10;
-  RAM[REG[0] + 1] = 5;
+  REG[10] =  0x10;
+  RAM[REG[0] + 1] = 30;
   RAM[REG[0] + 2] = 'o';
   RAM[REG[0] + 3] = 'l';
   RAM[REG[0] + 4] = 'a';
