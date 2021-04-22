@@ -24,6 +24,9 @@ void JMP(int *, int *);
 void XOR(int *, int *);
 void OR(int *, int *);
 void AND(int *, int *);
+void LDL(int *, int *);
+void LDH(int *, int *);
+void RND(int *, int *);
 void SYS(int *, int *);
 
 void (*vecFunciones[25])(int *, int *);

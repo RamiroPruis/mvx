@@ -9,6 +9,9 @@ void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
   int voAux = 0;
   int voBux = 0;
 
+  static int *voAStatic;
+  static int *voBStatic;
+
   //Cargamos los tipos de oprando
   if (cantOperandos == 2)
   {
@@ -19,8 +22,8 @@ void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
     //       A
     if (toA == 0x00)
     {
-      *voA = (int **)malloc(sizeof(int *));
-      **voA = voAux;
+      *voA = voAux;
+      *voA = &voA;
     }
 
     else if (toA == 0x01)
@@ -32,8 +35,8 @@ void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
     //      B
     if (toB == 0x00)
     {
-      *voB = (int **)malloc(sizeof(int *));
-      **voB = voBux;
+      *voBStatic = voBux;
+      **voB = &voBStatic;
     }
     else if (toB == 0x01)
       **voB = voBux;
@@ -47,8 +50,8 @@ void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
     //       A
     if (toA == 0x00)
     {
-      *voA = (int **)malloc(sizeof(int *));
-      **voA = voAux;
+      *voA = voAux;
+      *voA = &voA;
     }
     else if (toA == 0x01)
       **voA = voAux;
@@ -96,7 +99,7 @@ void cargaFunciones()
   vecFunciones[9] = AND;
   vecFunciones[10] = OR;
   vecFunciones[11] = XOR;
-  //vecFunciones[12] = SYS;
+  vecFunciones[12] = SYS;
   vecFunciones[13] = JMP;
   vecFunciones[14] = JZ;
   vecFunciones[15] = JP;
@@ -104,9 +107,9 @@ void cargaFunciones()
   vecFunciones[17] = JNZ;
   vecFunciones[18] = JNP;
   vecFunciones[19] = JNN;
-  //vecFunciones[20] = LDL;
-  //vecFunciones[21] = LDH;
-  //vecFunciones[22] = RND;
+  vecFunciones[20] = LDL;
+  vecFunciones[21] = LDH;
+  vecFunciones[22] = RND;
   vecFunciones[23] = NOT;
   vecFunciones[24] = STOP;
 }
@@ -124,7 +127,6 @@ void cambiaCC(int val)
 //OPERACIONES
 void MOV(int *valA, int *valB)
 {
-
   *valA = *valB;
 }
 
@@ -239,10 +241,16 @@ void JNZ(int *valA, int *valB)
 
 void JNP(int *valA, int *valB)
 {
+  if (REG[8] == 0x8000000 || REG[8] == 1)
+    REG[5] = *valA;
 }
 
 void JNN(int *valA, int *valB)
 {
+  if (REG[8] == 0 || REG[8] == 1)
+  {
+    REG[5] = *valA;
+  }
 }
 
 void NOT(int *valA, int *valB)
@@ -258,7 +266,7 @@ void STOP(int *valA, int *valB)
   REG[5] = REG[0];
 }
 
-void SYS(int *valA, int *valB)
+void LDL(int *valA, int *valB)
 {
   char prompt[10]="";
   char cad[100]={"\0"};
@@ -272,6 +280,7 @@ void SYS(int *valA, int *valB)
 
 
 
+<<<<<<< HEAD
   //Caso LECTURA
   if (*valA == 1)
   {
@@ -324,4 +333,16 @@ void SYS(int *valA, int *valB)
   }
   else
     printf("Error, SYS no interpreta ese argumento\n");
+}
+
+void LDH(int *valA, int *valB)
+{
+  REG[9] = REG[9] & 0x00FFFFFF;
+  *valA = (*valA & 0x000000FF) << 24;
+  REG[9] = REG[9] | *valA;
+}
+
+void RND(int *valA, int *valB)
+{
+  *valA = rand() % *valB;
 }
