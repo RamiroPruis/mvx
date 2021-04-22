@@ -13,3 +13,16 @@
 1618876846 source:e:\users\ramiro\documents\facultad\3ro\arqui\maquina virtual\mvx\mvx\decoinst.c
 	"decoinst.h"
 
+1619053855 source:e:\datos\escritorio\mvx\decoinst.c
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	"decoinst.h"
+
+1619045719 e:\datos\escritorio\mvx\decoinst.h
+
+1619053973 source:e:\datos\escritorio\mvx\main.c
+	<stdio.h>
+	<stdlib.h>
+	"decoinst.h"
+

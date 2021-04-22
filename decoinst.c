@@ -285,3 +285,79 @@ void RND(int *valA, int *valB)
 {
   *valA = rand() % *valB;
 }
+
+void SYS(int *valA, int *valB)
+{
+  char prompt[10] = "";
+  char cad[100] = {"\0"};
+  char cad2[100] = {""};
+  char caracter;
+  char entrada[100];
+  int i, condChar = 0;
+
+  if ((REG[10] & 0x800) == 0)
+    strcpy(prompt, "[%04d]: ");
+  else
+    strcpy(prompt, "");
+
+  //Caso LECTURA
+  if (*valA == 1)
+  {
+    if ((REG[10] & 0x100) != 0)
+    {
+      strcat(cad, "%c");
+      condChar = 1;
+    }
+    else
+    {
+      if ((REG[10] & 0x8) != 0)
+        strcat(cad, "%x ");
+      if ((REG[10] & 0x4) != 0)
+        strcat(cad, "%o ");
+      if ((REG[10] & 0x1) != 0)
+        strcat(cad, "%d ");
+    }
+
+    if (condChar == 0)
+      for (i = 0; i < REG[12]; i++)
+      {
+        printf(prompt, REG[13] + i);
+        scanf(cad, &(RAM[REG[0] + REG[13] + i]));
+      }
+    else
+    {
+      printf(prompt, REG[13]);
+      scanf("%s", entrada);
+      for (i = 0; entrada[i]; i++)
+        RAM[REG[0] + REG[13] + i] = entrada[i];
+    }
+  }
+  //Caso ESCRITURA
+  else if (*valA == 2)
+  {
+    if ((REG[10] & 0x10) != 0)
+      strcat(cad2, "%c");
+    if ((REG[10] & 0x8) != 0)
+      strcat(cad, "%X");
+    if ((REG[10] & 0x4) != 0)
+      strcat(cad, "%o");
+    if ((REG[10] & 0x1) != 0)
+      strcat(cad, "%d");
+    if ((REG[10] & 0x100) == 0)
+      strcat(cad, "\n");
+
+    for (i = 0; i < REG[12]; i++)
+    {
+
+      printf(prompt, REG[13] + i);
+      if (RAM[REG[0] + REG[13] + i] >= 32)
+        caracter = RAM[REG[0] + REG[13] + i];
+      else
+        caracter = '.';
+      printf(cad2, caracter);
+      printf(cad, RAM[REG[0] + REG[13] + i], RAM[REG[0] + REG[13] + i], RAM[REG[0] + REG[13] + i]);
+    }
+  }
+  else
+    printf("Error, SYS no interpreta ese argumento\n");
+}

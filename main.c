@@ -12,6 +12,19 @@ int main(/*char *argv[]*/)
   int mnemo, cantOperandos;
   int *voA, *voB;
 
+  *voA = 2;
+  REG[0] = 15;
+  REG[10] = 0x10;
+  RAM[REG[0] + 1] = 5;
+  RAM[REG[0] + 2] = 'o';
+  RAM[REG[0] + 3] = 'l';
+  RAM[REG[0] + 4] = 'a';
+  RAM[REG[0] + 5] = '\0';
+  REG[13] = 1;
+  REG[12] = 4;
+
+  SYS(voA, 0);
+
   /*
     if ((arch = fopen(argv[1], "rb")) == NULL)
         return 1;
@@ -21,8 +34,7 @@ int main(/*char *argv[]*/)
     */
 
   REG[5] = 0; //IP
-  cargaFunciones();
-
+  /*
   while (REG[5] >= 0 && REG[5] < REG[0])
   {
     //Obtener proxima instruccion
@@ -32,6 +44,7 @@ int main(/*char *argv[]*/)
     traduceOperandos(instruccion, cantOperandos, &voA, &voB);
     vecFunciones[mnemo](voA, voB); //Ejecuta
   }
+  */
 
   return 0;
 }
