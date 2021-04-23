@@ -11,7 +11,6 @@ int main(/*int argc, char *argv[]*/)
   int fgB = 0, fgC = 0, fgD = 0;
   int voAval, voBval;
   int *voA = &voAval, *voB = &voBval;
-  static TregFlags regFlags;
   //int len=strlen(argv[1]);
   //const char *bin=&argv[1][len-4];
 
@@ -63,7 +62,7 @@ int main(/*int argc, char *argv[]*/)
   REG[5] = 0; //IP
 
   cargaFunciones();
-  regFlags.flagB = fgB;
+  regFlags.flagB = 1;
   regFlags.flagC = fgC;
   regFlags.flagD = fgD;
   while (REG[5] >= 0 && REG[5] < REG[0])
@@ -73,6 +72,7 @@ int main(/*int argc, char *argv[]*/)
     REG[5]++;
     decInstruccion(instruccion, &cantOperandos, &mnemo);
     traduceOperandos(instruccion, cantOperandos, &voA, &voB);
+    printf("[%04d]: %02X %02X %02X %02X\n", REG[5], (instruccion >> 24) & 0xFF, (instruccion >> 16) & 0xFF, (instruccion >> 8) & 0xFF, (instruccion >> 0) & 0xFF);
     vecFunciones[mnemo](voA, voB); //Ejecuta
   }
 

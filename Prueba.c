@@ -58,7 +58,6 @@ int main(/*int argc, char *argv[]*/)
     int fgB = 0, fgC = 0, fgD = 0;
     int voAval, voBval;
     int *voA = &voAval, *voB = &voBval;
-    static TregFlags regFlags;
     //int len=strlen(argv[1]);
     //const char *bin=&argv[1][len-4];
 
@@ -110,7 +109,7 @@ int main(/*int argc, char *argv[]*/)
     REG[5] = 0; //IP
 
     cargaFunciones();
-    regFlags.flagB = fgB;
+    regFlags.flagB = 1;
     regFlags.flagC = fgC;
     regFlags.flagD = fgD;
     while (REG[5] >= 0 && REG[5] < REG[0])
@@ -120,6 +119,7 @@ int main(/*int argc, char *argv[]*/)
         REG[5]++;
         decInstruccion(instruccion, &cantOperandos, &mnemo);
         traduceOperandos(instruccion, cantOperandos, &voA, &voB);
+        printf("[%04d]: %02X %02X %02X %02X\n", REG[5], (instruccion >> 24) & 0xFF, (instruccion >> 16) & 0xFF, (instruccion >> 8) & 0xFF, (instruccion >> 0) & 0xFF);
         vecFunciones[mnemo](voA, voB); //Ejecuta
     }
 
@@ -489,10 +489,11 @@ void SYS(int *valA, int *valB)
         if (regFlags.flagB)
         {
             printf("[%04d] cmd: ", REG[5]);
-            scanf("%c", &rta);
+            fgets(rta, 20, stdin);
+            rta[strcspn(rta, "\n")] = 0; //Esto creo que le corta el \n
             printf("\n");
             //Ejecucion paso a paso
-            if (strcmp(rta, 'p') == 0)
+            if (strcmp(rta, "p") == 0)
                 pasoApaso(rta);
             else
                 muestraValor(rta);
@@ -507,7 +508,6 @@ void pasoApaso(char rta[])
     int voAval, voBval;
     int *voA = &voAval, *voB = &voBval;
     int instruccion;
-    int instruccion;
     int mnemo, cantOperandos;
 
     //La primer operacion que se ejecuta es justamente la que le sigue al breakpoint pues en el main ya se hizo el REG[5]++
@@ -518,9 +518,11 @@ void pasoApaso(char rta[])
         REG[5]++;
         decInstruccion(instruccion, &cantOperandos, &mnemo);
         traduceOperandos(instruccion, cantOperandos, &voA, &voB);
+        printf("[%04d]: %02X %02X %02X %02X\n", REG[5], (instruccion >> 24) & 0xFF, (instruccion >> 16) & 0xFF, (instruccion >> 8) & 0xFF, (instruccion >> 0) & 0xFF);
         vecFunciones[mnemo](voA, voB); //Ejecuta
         printf("[%04d] cmd: ", REG[5]);
-        scanf("%c", &rta);
+        fgets(rta, 20, stdin);
+        rta[strcspn(rta, "\n")] = 0;
         printf("\n");
         if (strcmp(rta, "") != 0)
             muestraValor(rta);
@@ -539,7 +541,7 @@ void muestraValor(char rta[])
         if (strcmp(cad2, "\0") == 0)
         {
             rtaInt1 = strtol(cad1, NULL, 10); //Lo transformamos en int
-            printf("[%04d] cmd: %04x %04x %d\n", rtaInt1, (RAM[rtaInt1] >> 16) & 0x000000FF, RAM[rtaInt1] & 0x000000FF, RAM[rtaInt1]);
+            printf("[%04d] cmd: %04X %04X %d\n", rtaInt1, (RAM[rtaInt1] >> 16) & 0x0000FFFF, RAM[rtaInt1] & 0x0000FFFF, RAM[rtaInt1]);
         }
         //Caso rango de valores
         else
@@ -547,10 +549,11 @@ void muestraValor(char rta[])
             rtaInt1 = strtol(cad1, NULL, 10);
             rtaInt2 = strtol(cad2, NULL, 10);
             for (rtaInt1; rtaInt1 <= rtaInt2; rtaInt1++)
-                printf("[%04d] cmd: %04x %04x %d\n", rtaInt1, (RAM[rtaInt1] >> 16) & 0x000000FF, RAM[rtaInt1] & 0x000000FF, RAM[rtaInt1]);
+                printf("[%04d] cmd: %04X %04X %d\n", rtaInt1, (RAM[rtaInt1] >> 16) & 0x000000FF, RAM[rtaInt1] & 0x000000FF, RAM[rtaInt1]);
         }
         printf("[%04d] cmd: ", REG[5]);
-        scanf("%c", &rta);
+        fgets(rta, 20, stdin);
+        rta[strcspn(rta, "\n")] = 0;
         printf("\n");
         cad1[0] = cad2[0] = '\0';
     }
@@ -566,9 +569,10 @@ void desarmaPalabra(char rta[], char cad1[], char cad2[])
         i++;
         j++;
     }
+    i++;
     while (rta[i] != '\0' && rta[i] != ' ')
     {
-        cad1[k] = rta[i];
+        cad2[k] = rta[i];
         i++;
         k++;
     }
