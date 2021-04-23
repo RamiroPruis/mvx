@@ -3,13 +3,6 @@ typedef struct
     int flagB, flagC, flagD;
 } TregFlags;
 
-int RAM[4096] = {0};
-int REG[16];
-int voAStaticVal, voBStaticVal;
-int *voAStatic = &voAStaticVal;
-int *voBStatic = &voBStaticVal;
-TregFlags regFlags;
-
 void traduceOperandos(int, int, int **, int **);
 void decInstruccion(int, int *, int *);
 void MOV(int *, int *);

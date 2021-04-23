@@ -16,15 +16,15 @@
 	<string.h>
 	"decoinst.h"
 
-1619205235 source:e:\datos\escritorio\mvx\decoinst.c
+1619207664 source:e:\datos\escritorio\mvx\decoinst.c
 	<stdlib.h>
 	<stdio.h>
 	<string.h>
 	"decoinst.h"
 
-1619205371 e:\datos\escritorio\mvx\decoinst.h
+1619207494 e:\datos\escritorio\mvx\decoinst.h
 
-1619205250 source:e:\datos\escritorio\mvx\main.c
+1619207659 source:e:\datos\escritorio\mvx\main.c
 	<stdio.h>
 	<stdlib.h>
 	"decoinst.h"

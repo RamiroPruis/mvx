@@ -2,6 +2,15 @@
 #include <stdlib.h>
 #include "decoinst.h"
 
+int RAM[4096];
+int REG[16];
+int voAStaticVal, voBStaticVal;
+int *voAStatic = &voAStaticVal;
+int *voBStatic = &voBStaticVal;
+int flagB;
+int flagC;
+int flagD;
+
 int main(/*int argc, char *argv[]*/)
 {
   FILE *arch;
@@ -62,9 +71,9 @@ int main(/*int argc, char *argv[]*/)
   REG[5] = 0; //IP
 
   cargaFunciones();
-  regFlags.flagB = 1;
-  regFlags.flagC = fgC;
-  regFlags.flagD = fgD;
+  flagB = 1;
+  flagC = 0;
+  flagD = 0;
   while (REG[5] >= 0 && REG[5] < REG[0])
   {
     //Obtener proxima instruccion

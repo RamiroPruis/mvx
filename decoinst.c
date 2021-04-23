@@ -3,6 +3,14 @@
 #include <string.h>
 #include "decoinst.h"
 
+extern int RAM[4096];
+extern int REG[16];
+extern int *voAStatic;
+extern int *voBStatic;
+extern int flagB;
+extern int flagC;
+extern int flagD;
+
 void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
 {
   int toA = -1, toB = -1;
@@ -358,12 +366,12 @@ void SYS(int *valA, int *valB)
   else if (*valA == 15)
   { //F
     //Si el flag c esta prendido
-    if (regFlags.flagC)
+    if (flagC)
       system("clear");
-    if (regFlags.flagD)
+    if (flagD)
     {
     }
-    if (regFlags.flagB)
+    if (flagB)
     {
       printf("[%04d] cmd: ", REG[5]);
       fgets(rta, 20, stdin);
