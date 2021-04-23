@@ -1,8 +1,14 @@
+typedef struct
+{
+    int flagB, flagC, flagD;
+} TregFlags;
+
 int RAM[4096] = {0};
 int REG[16];
 int voAStaticVal, voBStaticVal;
 int *voAStatic = &voAStaticVal;
 int *voBStatic = &voBStaticVal;
+TregFlags regFlags;
 
 void traduceOperandos(int, int, int **, int **);
 void decInstruccion(int, int *, int *);
@@ -34,3 +40,7 @@ void SYS(int *, int *);
 
 void (*vecFunciones[25])(int *, int *);
 void cargaFunciones();
+void pasoApaso();
+void desarmaPalabra(char[], char[], char[]);
+void muestraValor(char[]);
+void pasoApaso(char[]);

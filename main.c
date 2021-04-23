@@ -11,6 +11,7 @@ int main(/*int argc, char *argv[]*/)
   int fgB = 0, fgC = 0, fgD = 0;
   int voAval, voBval;
   int *voA = &voAval, *voB = &voBval;
+  static TregFlags regFlags;
   //int len=strlen(argv[1]);
   //const char *bin=&argv[1][len-4];
 
@@ -62,6 +63,9 @@ int main(/*int argc, char *argv[]*/)
   REG[5] = 0; //IP
 
   cargaFunciones();
+  regFlags.flagB = fgB;
+  regFlags.flagC = fgC;
+  regFlags.flagD = fgD;
   while (REG[5] >= 0 && REG[5] < REG[0])
   {
     //Obtener proxima instruccion

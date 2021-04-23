@@ -2,11 +2,17 @@
 #include <stdio.h>
 #include <string.h>
 
+typedef struct
+{
+    int flagB, flagC, flagD;
+} TregFlags;
+
 int RAM[4096] = {0};
 int REG[16];
 int voAStaticVal, voBStaticVal;
 int *voAStatic = &voAStaticVal;
 int *voBStatic = &voBStaticVal;
+TregFlags regFlags;
 
 void traduceOperandos(int, int, int **, int **);
 void decInstruccion(int, int *, int *);
@@ -38,6 +44,10 @@ void SYS(int *, int *);
 
 void (*vecFunciones[25])(int *, int *);
 void cargaFunciones();
+void pasoApaso();
+void desarmaPalabra(char[], char[], char[]);
+void muestraValor(char[]);
+void pasoApaso(char[]);
 
 int main(/*int argc, char *argv[]*/)
 {
@@ -48,6 +58,7 @@ int main(/*int argc, char *argv[]*/)
     int fgB = 0, fgC = 0, fgD = 0;
     int voAval, voBval;
     int *voA = &voAval, *voB = &voBval;
+    static TregFlags regFlags;
     //int len=strlen(argv[1]);
     //const char *bin=&argv[1][len-4];
 
@@ -99,6 +110,9 @@ int main(/*int argc, char *argv[]*/)
     REG[5] = 0; //IP
 
     cargaFunciones();
+    regFlags.flagB = fgB;
+    regFlags.flagC = fgC;
+    regFlags.flagD = fgD;
     while (REG[5] >= 0 && REG[5] < REG[0])
     {
         //Obtener proxima instruccion
@@ -393,6 +407,7 @@ void RND(int *valA, int *valB)
 
 void SYS(int *valA, int *valB)
 {
+    char rta[20];
     char prompt[10] = "";
     char cad[100] = {"\0"};
     char cad2[100] = {""};
@@ -463,16 +478,98 @@ void SYS(int *valA, int *valB)
             printf(cad, RAM[REG[0] + REG[13] + i], RAM[REG[0] + REG[13] + i], RAM[REG[0] + REG[13] + i]);
         }
     }
-    // else if (*valA == 15)
-    // { //F
-    //     //Con los flags, podriamos hacer un registro
-    //     //y pasarle como parametro al sys ese registro
-    //     if (fgA)
-    //     {
-    //         printf("%s cmd:", prompt);
-    //         scanf("");
-    //     }
-    // }
+    else if (*valA == 15)
+    { //F
+        //Si el flag c esta prendido
+        if (regFlags.flagC)
+            system("clear");
+        if (regFlags.flagD)
+        {
+        }
+        if (regFlags.flagB)
+        {
+            printf("[%04d] cmd: ", REG[5]);
+            scanf("%c", &rta);
+            printf("\n");
+            //Ejecucion paso a paso
+            if (strcmp(rta, 'p') == 0)
+                pasoApaso(rta);
+            else
+                muestraValor(rta);
+        }
+    }
     else
         printf("Error, SYS no interpreta ese argumento\n");
+}
+
+void pasoApaso(char rta[])
+{
+    int voAval, voBval;
+    int *voA = &voAval, *voB = &voBval;
+    int instruccion;
+    int instruccion;
+    int mnemo, cantOperandos;
+
+    //La primer operacion que se ejecuta es justamente la que le sigue al breakpoint pues en el main ya se hizo el REG[5]++
+    while (REG[5] >= 0 && REG[5] < REG[0])
+    {
+        //Obtener proxima instruccion
+        instruccion = RAM[REG[5]];
+        REG[5]++;
+        decInstruccion(instruccion, &cantOperandos, &mnemo);
+        traduceOperandos(instruccion, cantOperandos, &voA, &voB);
+        vecFunciones[mnemo](voA, voB); //Ejecuta
+        printf("[%04d] cmd: ", REG[5]);
+        scanf("%c", &rta);
+        printf("\n");
+        if (strcmp(rta, "") != 0)
+            muestraValor(rta);
+    }
+}
+
+void muestraValor(char rta[])
+{
+    char cad1[20] = {"\0"}, cad2[20] = {"\0"};
+    int rtaInt1, rtaInt2;
+
+    while (strcmp(rta, "") != 0)
+    {
+        desarmaPalabra(rta, cad1, cad2);
+        //Caso 1 solo valor
+        if (strcmp(cad2, "\0") == 0)
+        {
+            rtaInt1 = strtol(cad1, NULL, 10); //Lo transformamos en int
+            printf("[%04d] cmd: %04x %04x %d\n", rtaInt1, (RAM[rtaInt1] >> 16) & 0x000000FF, RAM[rtaInt1] & 0x000000FF, RAM[rtaInt1]);
+        }
+        //Caso rango de valores
+        else
+        {
+            rtaInt1 = strtol(cad1, NULL, 10);
+            rtaInt2 = strtol(cad2, NULL, 10);
+            for (rtaInt1; rtaInt1 <= rtaInt2; rtaInt1++)
+                printf("[%04d] cmd: %04x %04x %d\n", rtaInt1, (RAM[rtaInt1] >> 16) & 0x000000FF, RAM[rtaInt1] & 0x000000FF, RAM[rtaInt1]);
+        }
+        printf("[%04d] cmd: ", REG[5]);
+        scanf("%c", &rta);
+        printf("\n");
+        cad1[0] = cad2[0] = '\0';
+    }
+}
+
+void desarmaPalabra(char rta[], char cad1[], char cad2[])
+{
+    int i = 0;
+    int j = 0, k = 0;
+    while (rta[i] != '\0' && rta[i] != ' ')
+    {
+        cad1[j] = rta[i];
+        i++;
+        j++;
+    }
+    while (rta[i] != '\0' && rta[i] != ' ')
+    {
+        cad1[k] = rta[i];
+        i++;
+        k++;
+    }
 }
