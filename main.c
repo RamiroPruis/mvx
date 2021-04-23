@@ -2,13 +2,17 @@
 #include <stdlib.h>
 #include "decoinst.h"
 
-int main(/*char *argv[]*/)
+int main(/*int argc, char *argv[]*/)
 {
 
   int instruccion;
   int i = 0;
   int mnemo, cantOperandos;
   int *voA, *voB;
+  int fgB=0,fgC=0,fgD=0;
+  //int len=strlen(argv[1]);
+  //const char *bin=&argv[1][len-4];
+
 
   *voA = 2;
   REG[0] = 15;
@@ -23,6 +27,32 @@ int main(/*char *argv[]*/)
 
   SYS(voA, 0);
 
+
+  /*
+  if (argc<2)
+    printf("Error. Faltan argumentos. Recomendacion:\n
+           mvx.exe BinFilename [-b] [-c] [-d] (flags opcionales[])");
+  else
+    if (strcmp(argv[1],bin)!=0){ //SI LA EXTENSION NO ES .BIN
+        printf("Error. El archivo binario no es de tipo .bin");
+    else
+        if (argc>2){
+            i=3;
+            while (i<=argc){
+                switch argv[i-1]:
+                case "-b":
+                    fgB=1;
+                    break;
+                case "-c":
+                    fgC=1;
+                    break;
+                case "-d":
+                    fgD=1;
+                    break;
+            }
+        }
+
+  */
   /*
     if ((arch = fopen(argv[1], "rb")) == NULL)
         return 1;

@@ -359,5 +359,15 @@ void SYS(int *valA, int *valB)
     }
   }
   else
-    printf("Error, SYS no interpreta ese argumento\n");
+    if (*valA==15){//F
+        //Con los flags, podriamos hacer un registro
+        //y pasarle como parametro al sys ese registro
+        if (fgA){
+            printf("%s cmd:",prompt);
+            scanf("");
+        }
+
+    }
+    else
+        printf("Error, SYS no interpreta ese argumento\n");
 }
