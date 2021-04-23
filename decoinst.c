@@ -9,9 +9,6 @@ void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
   int voAux = 0;
   int voBux = 0;
 
-  static int *voAStatic;
-  static int *voBStatic;
-
   //Cargamos los tipos de oprando
   if (cantOperandos == 2)
   {
@@ -22,26 +19,24 @@ void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
     //       A
     if (toA == 0x00)
     {
-      *voA = voAux;
-      *voA = &voA;
+      *voAStatic = voAux;
+      *voA = voAStatic;
     }
-
     else if (toA == 0x01)
-      **voA = voAux;
-
+      *voA = &REG[voAux];
     else
-      **voA = RAM[(voAux + REG[0])];
+      *voA = &RAM[(voAux + REG[0])];
 
     //      B
     if (toB == 0x00)
     {
       *voBStatic = voBux;
-      **voB = &voBStatic;
+      *voB = voBStatic;
     }
     else if (toB == 0x01)
-      **voB = voBux;
+      *voB = &REG[voBux];
     else
-      **voB = RAM[(voBux + REG[0])];
+      *voB = &RAM[(voBux + REG[0])];
   }
   else if (cantOperandos == 1)
   {
@@ -50,39 +45,40 @@ void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
     //       A
     if (toA == 0x00)
     {
-      *voA = voAux;
-      *voA = &voA;
+      *voAStatic = voAux;
+      *voA = voAStatic;
     }
     else if (toA == 0x01)
-      **voA = voAux;
+      *voA = &voAux;
 
     else
-      **voA = RAM[(voAux + REG[0])];
+      *voA = &RAM[(voAux + REG[0])];
   }
 }
 
 void decInstruccion(int instruccion, int *cantOperando, int *codigo)
 {
+  int que = (instruccion >> 24) & 0xFF;
 
-  if ((instruccion >> 24) == 0xFF)
+  if (((instruccion >> 24) & 0xFF) == 0xFF)
   {
     //codigo 0 op
     *cantOperando = 0;
-    *codigo = instruccion >> 20;
+    *codigo = (instruccion >> 20) & 0xFFF;
     *codigo = *codigo - 4056; //Para el vector Funciones
   }
-  else if ((instruccion >> 28) == 0xF)
+  else if (((instruccion >> 28) & 0xF) == 0xF)
   {
     //codigo 1op
     *cantOperando = 1;
-    *codigo = instruccion >> 24;
+    *codigo = (instruccion >> 24) & 0xFF;
     *codigo = *codigo - 228;
   }
   else
   {
     //codigo 2op
     *cantOperando = 2;
-    *codigo = instruccion >> 28;
+    *codigo = (instruccion >> 28) & 0xF;
   }
 }
 void cargaFunciones()
@@ -121,7 +117,7 @@ void cambiaCC(int val)
   else if (val < 0)
     REG[8] = 0x80000000;
   else
-    REG[8] = 0;
+    REG[8] = 1; //preguntar
 }
 
 //OPERACIONES
@@ -358,16 +354,16 @@ void SYS(int *valA, int *valB)
       printf(cad, RAM[REG[0] + REG[13] + i], RAM[REG[0] + REG[13] + i], RAM[REG[0] + REG[13] + i]);
     }
   }
+  // else if (*valA == 15)
+  // { //F
+  //     //Con los flags, podriamos hacer un registro
+  //     //y pasarle como parametro al sys ese registro
+  //     if (fgA)
+  //     {
+  //         printf("%s cmd:", prompt);
+  //         scanf("");
+  //     }
+  // }
   else
-    if (*valA==15){//F
-        //Con los flags, podriamos hacer un registro
-        //y pasarle como parametro al sys ese registro
-        if (fgA){
-            printf("%s cmd:",prompt);
-            scanf("");
-        }
-
-    }
-    else
-        printf("Error, SYS no interpreta ese argumento\n");
+    printf("Error, SYS no interpreta ese argumento\n");
 }

@@ -4,29 +4,28 @@
 
 int main(/*int argc, char *argv[]*/)
 {
-
+  FILE *arch;
   int instruccion;
   int i = 0;
   int mnemo, cantOperandos;
-  int *voA, *voB;
-  int fgB=0,fgC=0,fgD=0;
+  int fgB = 0, fgC = 0, fgD = 0;
+  int voAval, voBval;
+  int *voA = &voAval, *voB = &voBval;
   //int len=strlen(argv[1]);
   //const char *bin=&argv[1][len-4];
 
+  // *voA = 2;
+  // REG[0] = 15;
+  // REG[10] =  0x10;
+  // RAM[REG[0] + 1] = 30;
+  // RAM[REG[0] + 2] = 'o';
+  // RAM[REG[0] + 3] = 'l';
+  // RAM[REG[0] + 4] = 'a';
+  // RAM[REG[0] + 5] = '\0';
+  // REG[13] = 1;
+  // REG[12] = 4;
 
-  *voA = 2;
-  REG[0] = 15;
-  REG[10] =  0x10;
-  RAM[REG[0] + 1] = 30;
-  RAM[REG[0] + 2] = 'o';
-  RAM[REG[0] + 3] = 'l';
-  RAM[REG[0] + 4] = 'a';
-  RAM[REG[0] + 5] = '\0';
-  REG[13] = 1;
-  REG[12] = 4;
-
-  SYS(voA, 0);
-
+  // SYS(voA, 0);
 
   /*
   if (argc<2)
@@ -53,16 +52,16 @@ int main(/*int argc, char *argv[]*/)
         }
 
   */
-  /*
-    if ((arch = fopen(argv[1], "rb")) == NULL)
-        return 1;
-    while(fread(RAM[i],sizeof(int),1,arch)!=NULL)
-      i++;
-    REG[0] = i-1; //DS
-    */
+
+  if ((arch = fopen("binardo.bin", "rb")) == NULL)
+    return 1;
+  while (fread(&RAM[i], sizeof(int), 1, arch) == 1)
+    i++;
+  REG[0] = i - 1; //DS apunta a la ultima linea de binario a interpretar
 
   REG[5] = 0; //IP
-  /*
+
+  cargaFunciones();
   while (REG[5] >= 0 && REG[5] < REG[0])
   {
     //Obtener proxima instruccion
@@ -72,7 +71,6 @@ int main(/*int argc, char *argv[]*/)
     traduceOperandos(instruccion, cantOperandos, &voA, &voB);
     vecFunciones[mnemo](voA, voB); //Ejecuta
   }
-  */
 
   return 0;
 }

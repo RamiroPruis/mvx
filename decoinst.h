@@ -1,5 +1,8 @@
-int RAM[4096];
+int RAM[4096] = {0};
 int REG[16];
+int voAStaticVal, voBStaticVal;
+int *voAStatic = &voAStaticVal;
+int *voBStatic = &voBStaticVal;
 
 void traduceOperandos(int, int, int **, int **);
 void decInstruccion(int, int *, int *);
