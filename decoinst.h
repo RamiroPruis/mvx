@@ -3,6 +3,12 @@ typedef struct
     int flagB, flagC, flagD;
 } TregFlags;
 
+typedef struct
+{
+    char mnemo[10];
+    int hex;
+} Tvec;
+
 void traduceOperandos(int, int, int **, int **);
 void decInstruccion(int, int *, int *);
 void MOV(int *, int *);
@@ -31,6 +37,8 @@ void LDH(int *, int *);
 void RND(int *, int *);
 void SYS(int *, int *);
 
+void creadicc(Tvec[]);
+void creaReg(Tvec[]);
 void (*vecFunciones[25])(int *, int *);
 void cargaFunciones();
 void pasoApaso();

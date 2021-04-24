@@ -64,8 +64,15 @@ int main(/*int argc, char *argv[]*/)
 
   if ((arch = fopen("binardo.bin", "rb")) == NULL)
     return 1;
-  while (fread(&RAM[i], sizeof(int), 1, arch) == 1)
-    i++;
+  if (!flagD)
+    while (fread(&RAM[i], sizeof(int), 1, arch) == 1)
+      i++;
+  else
+    printf("Codigo:\n");
+    while (fread(&RAM[i], sizeof(int), 1, arch) == 1){
+      dissasembler(RAM[i],i);
+      i++;
+    }
   REG[0] = i - 1; //DS apunta a la ultima linea de binario a interpretar
 
   REG[5] = 0; //IP
