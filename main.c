@@ -7,9 +7,12 @@ int REG[16];
 int voAStaticVal, voBStaticVal;
 int *voAStatic = &voAStaticVal;
 int *voBStatic = &voBStaticVal;
+Tdisasembler DISASEMBLER[1000];
 int flagB;
 int flagC;
 int flagD;
+Tvec vecReg[10];
+Tvec vecMnemo[25];
 
 int main(/*int argc, char *argv[]*/)
 {
@@ -61,35 +64,52 @@ int main(/*int argc, char *argv[]*/)
         }
 
   */
+  flagD = 1;
 
-  if ((arch = fopen("binardo.bin", "rb")) == NULL)
+  if ((arch = fopen("holaquetal.bin", "rb")) == NULL)
     return 1;
+  creadicc(vecMnemo);
+  creaReg(vecReg);
   if (!flagD)
     while (fread(&RAM[i], sizeof(int), 1, arch) == 1)
       i++;
   else
+  {
     printf("Codigo:\n");
-    while (fread(&RAM[i], sizeof(int), 1, arch) == 1){
-      dissasembler(RAM[i],i);
+    while (fread(&RAM[i], sizeof(int), 1, arch) == 1)
+    {
+      dissasembler(RAM[i], i);
       i++;
     }
-  REG[0] = i - 1; //DS apunta a la ultima linea de binario a interpretar
+  }
+
+  REG[0] = i; //DS apunta a la ultima linea de binario a interpretar
 
   REG[5] = 0; //IP
 
+  if (flagD)
+  {
+    //mostramos por primera vez
+    for (int i = 0; i < REG[0]; i++)
+      printf("%s\n", DISASEMBLER[i]);
+    printf("\n");
+  }
+
   cargaFunciones();
+
   flagB = 1;
   flagC = 0;
-  flagD = 0;
   while (REG[5] >= 0 && REG[5] < REG[0])
   {
     //Obtener proxima instruccion
-    instruccion = RAM[REG[5]];
-    REG[5]++;
-    decInstruccion(instruccion, &cantOperandos, &mnemo);
-    traduceOperandos(instruccion, cantOperandos, &voA, &voB);
-    printf("[%04d]: %02X %02X %02X %02X\n", REG[5], (instruccion >> 24) & 0xFF, (instruccion >> 16) & 0xFF, (instruccion >> 8) & 0xFF, (instruccion >> 0) & 0xFF);
-    vecFunciones[mnemo](voA, voB); //Ejecuta
+    // instruccion = RAM[REG[5]];
+    // REG[5]++;
+    // decInstruccion(instruccion, &cantOperandos, &mnemo);
+    // traduceOperandos(instruccion, cantOperandos, &voA, &voB);
+    // //printf("[%04d]: %02X %02X %02X %02X\n", REG[5], (instruccion >> 24) & 0xFF, (instruccion >> 16) & 0xFF, (instruccion >> 8) & 0xFF, (instruccion >> 0) & 0xFF);
+    // vecFunciones[mnemo](voA, voB); //Ejecuta
+
+    proxinstruccion();
   }
 
   return 0;

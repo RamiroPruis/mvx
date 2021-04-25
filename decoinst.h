@@ -9,6 +9,11 @@ typedef struct
     int hex;
 } Tvec;
 
+typedef struct
+{
+    char cadena[100];
+} Tdisasembler;
+
 void traduceOperandos(int, int, int **, int **);
 void decInstruccion(int, int *, int *);
 void MOV(int *, int *);
@@ -45,3 +50,6 @@ void pasoApaso();
 void desarmaPalabra(char[], char[], char[]);
 void muestraValor(char[]);
 void pasoApaso(char[]);
+void dissasembler(int, int);
+void traduceIntruccion(char[], int, Tvec[], Tvec[]);
+void proxinstruccion();

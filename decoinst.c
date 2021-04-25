@@ -450,11 +450,13 @@ void SYS(int *valA, int *valB)
   }
   else if (*valA == 15)
   { //F
+
     //Si el flag c esta prendido
     if (flagC)
       system("clear");
     if (flagD)
     {
+
       //Mostramos 10 lineas a partir del IP 5 antes y 4 despues (y con el 10)
       if (REG[5] - 5 >= 0)
         for (int i = REG[5] - 5; i < REG[5] + 5; i++)
@@ -475,7 +477,24 @@ void SYS(int *valA, int *valB)
           }
           else
             printf(" %s\n", DISASEMBLER[i]);
-      //Codigo de marian
+
+      proxinstruccion();
+      sprintf(cad, "Registros:\n");
+      int j = 0;
+      for (i = 1; i <= 4; i++)
+      {
+        while (j < i * 4)
+        {
+          if (vecReg[j].mnemo[0] != '\0')
+            sprintf(cad2, "%s = %15d |", vecReg[j].mnemo, REG[j]);
+          else
+            sprintf(cad2, "%20s |", vecReg[j].mnemo);
+          j++;
+          strcat(cad, cad2);
+        }
+        strcat(cad, "\n");
+      }
+      printf("%s", cad);
     }
     if (flagB)
     {
@@ -505,12 +524,13 @@ void pasoApaso(char rta[])
   while (REG[5] >= 0 && REG[5] < REG[0])
   {
     //Obtener proxima instruccion
-    instruccion = RAM[REG[5]];
-    REG[5]++;
-    decInstruccion(instruccion, &cantOperandos, &mnemo);
-    traduceOperandos(instruccion, cantOperandos, &voA, &voB);
-    printf("[%04d]: %02X %02X %02X %02X\n", REG[5], (instruccion >> 24) & 0xFF, (instruccion >> 16) & 0xFF, (instruccion >> 8) & 0xFF, (instruccion >> 0) & 0xFF);
-    vecFunciones[mnemo](voA, voB); //Ejecuta
+    // instruccion = RAM[REG[5]];
+    // REG[5]++;
+    // decInstruccion(instruccion, &cantOperandos, &mnemo);
+    // traduceOperandos(instruccion, cantOperandos, &voA, &voB);
+    // printf("[%04d]: %02X %02X %02X %02X\n", REG[5], (instruccion >> 24) & 0xFF, (instruccion >> 16) & 0xFF, (instruccion >> 8) & 0xFF, (instruccion >> 0) & 0xFF);
+    // vecFunciones[mnemo](voA, voB); //Ejecuta
+    proxinstruccion();
     printf("[%04d] cmd: ", REG[5]);
     fgets(rta, 20, stdin);
     rta[strcspn(rta, "\n")] = 0;
@@ -666,4 +686,17 @@ void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[])
       }
     }
   }
+}
+
+void proxinstruccion()
+{
+  int voAval, voBval;
+  int *voA = &voAval, *voB = &voBval;
+  int instruccion;
+  int mnemo, cantOperandos;
+  instruccion = RAM[REG[5]];
+  REG[5]++;
+  decInstruccion(instruccion, &cantOperandos, &mnemo);
+  traduceOperandos(instruccion, cantOperandos, &voA, &voB);
+  vecFunciones[mnemo](voA, voB);
 }

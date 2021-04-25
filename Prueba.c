@@ -7,12 +7,16 @@ typedef struct
     int flagB, flagC, flagD;
 } TregFlags;
 
-int RAM[4096] = {0};
-int REG[16];
-int voAStaticVal, voBStaticVal;
-int *voAStatic = &voAStaticVal;
-int *voBStatic = &voBStaticVal;
-TregFlags regFlags;
+typedef struct
+{
+    char mnemo[10];
+    int hex;
+} Tvec;
+
+typedef struct
+{
+    char cadena[100];
+} Tdisasembler;
 
 void traduceOperandos(int, int, int **, int **);
 void decInstruccion(int, int *, int *);
@@ -42,12 +46,29 @@ void LDH(int *, int *);
 void RND(int *, int *);
 void SYS(int *, int *);
 
+void creadicc(Tvec[]);
+void creaReg(Tvec[]);
 void (*vecFunciones[25])(int *, int *);
 void cargaFunciones();
 void pasoApaso();
 void desarmaPalabra(char[], char[], char[]);
 void muestraValor(char[]);
 void pasoApaso(char[]);
+void dissasembler(int, int);
+void traduceIntruccion(char[], int, Tvec[], Tvec[]);
+void proxinstruccion();
+
+int RAM[4096];
+int REG[16];
+int voAStaticVal, voBStaticVal;
+int *voAStatic = &voAStaticVal;
+int *voBStatic = &voBStaticVal;
+Tdisasembler DISASEMBLER[1000];
+int flagB;
+int flagC;
+int flagD;
+Tvec vecReg[10];
+Tvec vecMnemo[25];
 
 int main(/*int argc, char *argv[]*/)
 {
@@ -99,31 +120,137 @@ int main(/*int argc, char *argv[]*/)
         }
 
   */
+    flagD = 1;
 
-    if ((arch = fopen("binardo.bin", "rb")) == NULL)
+    if ((arch = fopen("holaquetal.bin", "rb")) == NULL)
         return 1;
-    while (fread(&RAM[i], sizeof(int), 1, arch) == 1)
-        i++;
-    REG[0] = i - 1; //DS apunta a la ultima linea de binario a interpretar
+    creadicc(vecMnemo);
+    creaReg(vecReg);
+    if (!flagD)
+        while (fread(&RAM[i], sizeof(int), 1, arch) == 1)
+            i++;
+    else
+    {
+        printf("Codigo:\n");
+        while (fread(&RAM[i], sizeof(int), 1, arch) == 1)
+        {
+            dissasembler(RAM[i], i);
+            i++;
+        }
+    }
+
+    REG[0] = i; //DS apunta a la ultima linea de binario a interpretar
 
     REG[5] = 0; //IP
 
+    if (flagD)
+    {
+        //mostramos por primera vez
+        for (int i = 0; i < REG[0]; i++)
+            printf("%s\n", DISASEMBLER[i]);
+        printf("\n");
+    }
+
     cargaFunciones();
-    regFlags.flagB = 1;
-    regFlags.flagC = fgC;
-    regFlags.flagD = fgD;
+
+    flagB = 1;
+    flagC = 0;
     while (REG[5] >= 0 && REG[5] < REG[0])
     {
         //Obtener proxima instruccion
-        instruccion = RAM[REG[5]];
-        REG[5]++;
-        decInstruccion(instruccion, &cantOperandos, &mnemo);
-        traduceOperandos(instruccion, cantOperandos, &voA, &voB);
-        printf("[%04d]: %02X %02X %02X %02X\n", REG[5], (instruccion >> 24) & 0xFF, (instruccion >> 16) & 0xFF, (instruccion >> 8) & 0xFF, (instruccion >> 0) & 0xFF);
-        vecFunciones[mnemo](voA, voB); //Ejecuta
+        // instruccion = RAM[REG[5]];
+        // REG[5]++;
+        // decInstruccion(instruccion, &cantOperandos, &mnemo);
+        // traduceOperandos(instruccion, cantOperandos, &voA, &voB);
+        // //printf("[%04d]: %02X %02X %02X %02X\n", REG[5], (instruccion >> 24) & 0xFF, (instruccion >> 16) & 0xFF, (instruccion >> 8) & 0xFF, (instruccion >> 0) & 0xFF);
+        // vecFunciones[mnemo](voA, voB); //Ejecuta
+
+        proxinstruccion();
     }
 
     return 0;
+}
+
+void creadicc(Tvec vec[])
+{
+    strcpy(vec[0].mnemo, "MOV");
+    vec[0].hex = 0x00;
+    strcpy(vec[1].mnemo, "ADD");
+    vec[1].hex = 0x01;
+    strcpy(vec[2].mnemo, "SUB");
+    vec[2].hex = 0x02;
+    strcpy(vec[3].mnemo, "SWAP");
+    vec[3].hex = 0x03;
+    strcpy(vec[4].mnemo, "MUL");
+    vec[4].hex = 0x04;
+    strcpy(vec[5].mnemo, "DIV");
+    vec[5].hex = 0x05;
+    strcpy(vec[6].mnemo, "CMP");
+    vec[6].hex = 0x06;
+    strcpy(vec[7].mnemo, "SHL");
+    vec[7].hex = 0x07;
+    strcpy(vec[8].mnemo, "SHR");
+    vec[8].hex = 0x08;
+    strcpy(vec[9].mnemo, "AND");
+    vec[9].hex = 0x09;
+    strcpy(vec[10].mnemo, "OR");
+    vec[10].hex = 0x0A;
+    strcpy(vec[11].mnemo, "XOR");
+    vec[11].hex = 0x0B;
+    strcpy(vec[12].mnemo, "SYS");
+    vec[12].hex = 0xF0;
+    strcpy(vec[13].mnemo, "JMP");
+    vec[13].hex = 0xF1;
+    strcpy(vec[14].mnemo, "JZ");
+    vec[14].hex = 0xF2;
+    strcpy(vec[15].mnemo, "JP");
+    vec[15].hex = 0xF3;
+    strcpy(vec[16].mnemo, "JN");
+    vec[16].hex = 0xF4;
+    strcpy(vec[17].mnemo, "JNZ");
+    vec[17].hex = 0xF5;
+    strcpy(vec[18].mnemo, "JNP");
+    vec[18].hex = 0xF6;
+    strcpy(vec[19].mnemo, "JNN");
+    vec[19].hex = 0xF7;
+    strcpy(vec[20].mnemo, "LDL");
+    vec[20].hex = 0xF8;
+    strcpy(vec[21].mnemo, "LDH");
+    vec[21].hex = 0xF9;
+    strcpy(vec[22].mnemo, "RND");
+    vec[22].hex = 0xFA;
+    strcpy(vec[23].mnemo, "NOT");
+    vec[23].hex = 0xFB;
+    strcpy(vec[24].mnemo, "STOP");
+    vec[24].hex = 0xFF1;
+}
+
+void creaReg(Tvec registros[])
+{
+    //Inicializamos en null
+    for (int i = 0; i < 16; i++)
+        strcpy(registros[i].mnemo, "\0");
+
+    strcpy(registros[0].mnemo, "DS");
+    registros[0].hex = 0;
+    strcpy(registros[5].mnemo, "IP");
+    registros[5].hex = 5;
+    strcpy(registros[8].mnemo, "CC");
+    registros[8].hex = 8;
+    strcpy(registros[9].mnemo, "AC");
+    registros[9].hex = 9;
+    strcpy(registros[10].mnemo, "AX");
+    registros[10].hex = 10;
+    strcpy(registros[11].mnemo, "BX");
+    registros[11].hex = 11;
+    strcpy(registros[12].mnemo, "CX");
+    registros[12].hex = 12;
+    strcpy(registros[13].mnemo, "DX");
+    registros[13].hex = 13;
+    strcpy(registros[14].mnemo, "EX");
+    registros[14].hex = 14;
+    strcpy(registros[15].mnemo, "FX");
+    registros[15].hex = 15;
 }
 
 void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
@@ -480,13 +607,53 @@ void SYS(int *valA, int *valB)
     }
     else if (*valA == 15)
     { //F
+
         //Si el flag c esta prendido
-        if (regFlags.flagC)
+        if (flagC)
             system("clear");
-        if (regFlags.flagD)
+        if (flagD)
         {
+
+            //Mostramos 10 lineas a partir del IP 5 antes y 4 despues (y con el 10)
+            if (REG[5] - 5 >= 0)
+                for (int i = REG[5] - 5; i < REG[5] + 5; i++)
+                    if (i == REG[5])
+                    {
+                        printf(">");
+                        printf("%s\n", DISASEMBLER[i]);
+                    }
+                    else
+                        printf(" %s\n", DISASEMBLER[i]);
+
+            else
+                for (int i = 0; i < 10; i++)
+                    if (i == REG[5])
+                    {
+                        printf(">");
+                        printf("%s\n", DISASEMBLER[i]);
+                    }
+                    else
+                        printf(" %s\n", DISASEMBLER[i]);
+
+            proxinstruccion();
+            sprintf(cad, "Registros:\n");
+            int j = 0;
+            for (i = 1; i <= 4; i++)
+            {
+                while (j < i * 4)
+                {
+                    if (vecReg[j].mnemo[0] != '\0')
+                        sprintf(cad2, "%s = %15d |", vecReg[j].mnemo, REG[j]);
+                    else
+                        sprintf(cad2, "%20s |", vecReg[j].mnemo);
+                    j++;
+                    strcat(cad, cad2);
+                }
+                strcat(cad, "\n");
+            }
+            printf("%s", cad);
         }
-        if (regFlags.flagB)
+        if (flagB)
         {
             printf("[%04d] cmd: ", REG[5]);
             fgets(rta, 20, stdin);
@@ -514,12 +681,13 @@ void pasoApaso(char rta[])
     while (REG[5] >= 0 && REG[5] < REG[0])
     {
         //Obtener proxima instruccion
-        instruccion = RAM[REG[5]];
-        REG[5]++;
-        decInstruccion(instruccion, &cantOperandos, &mnemo);
-        traduceOperandos(instruccion, cantOperandos, &voA, &voB);
-        printf("[%04d]: %02X %02X %02X %02X\n", REG[5], (instruccion >> 24) & 0xFF, (instruccion >> 16) & 0xFF, (instruccion >> 8) & 0xFF, (instruccion >> 0) & 0xFF);
-        vecFunciones[mnemo](voA, voB); //Ejecuta
+        // instruccion = RAM[REG[5]];
+        // REG[5]++;
+        // decInstruccion(instruccion, &cantOperandos, &mnemo);
+        // traduceOperandos(instruccion, cantOperandos, &voA, &voB);
+        // printf("[%04d]: %02X %02X %02X %02X\n", REG[5], (instruccion >> 24) & 0xFF, (instruccion >> 16) & 0xFF, (instruccion >> 8) & 0xFF, (instruccion >> 0) & 0xFF);
+        // vecFunciones[mnemo](voA, voB); //Ejecuta
+        proxinstruccion();
         printf("[%04d] cmd: ", REG[5]);
         fgets(rta, 20, stdin);
         rta[strcspn(rta, "\n")] = 0;
@@ -576,4 +744,116 @@ void desarmaPalabra(char rta[], char cad1[], char cad2[])
         i++;
         k++;
     }
+}
+
+void dissasembler(int instruccion, int i)
+{
+    char cad1[100] = {'\0'};
+    char cad2[100] = {'\0'};
+
+    sprintf(cad1, "[%04d]: %02X %02X %02X %02X   %d: ", i, (instruccion >> 24) & 0xFF, (instruccion >> 16) & 0xFF, (instruccion >> 8) & 0xFF, (instruccion >> 0) & 0xFF, i + 1);
+    traduceIntruccion(cad2, instruccion, vecMnemo, vecReg); //Retorna en cad2 el "MOV ...."
+    strcat(cad1, cad2);                                     //Queda en cad 1 toda la expresion a guardar
+    strcpy(DISASEMBLER[i].cadena, cad1);
+}
+
+void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[])
+{
+    int i, j;
+    char op1[5] = "\0";
+    int aver1 = (inst >> 24) == 0xFF;
+    int aver2 = ((inst >> 20) & 0xFFF);
+
+    if (((inst >> 24) & 0xFF) == 0x000000FF)
+    { // Sin operandos
+        i = 24;
+        while (cod[i].hex != ((inst >> 20) & 0xFFF))
+            i++;
+        strcpy(cad, cod[i].mnemo);
+    }
+    else
+    {
+        if (((inst >> 28) & 0xF) == 0xF)
+        { // 1 operando
+            i = 12;
+            while (cod[i].hex != ((inst >> 24) & 0xFF))
+                i++;
+            strcpy(cad, cod[i].mnemo);
+            if (((inst >> 22) & 0x003) == 0x000)
+            { // operando inmediato
+                sprintf(op1, " %d", (inst & 0x000FFFFF));
+                strcat(cad, op1);
+            }
+            else if (((inst >> 22) & 0x003) == 0x001)
+            { // operando de registro
+                j = 0;
+                while (reg[j].hex != (inst & 0x000FFFFF))
+                    j++;
+                sprintf(op1, " %s", reg[j].mnemo);
+                strcat(cad, op1);
+            }
+            else if (((inst >> 22) & 0x003) == 0x002)
+            { // operando directo
+                sprintf(op1, " [%d]", (inst & 0x000FFFFF));
+                strcat(cad, op1);
+            }
+        }
+        else
+        { // 2 operandos
+            i = 0;
+            while (cod[i].hex != inst >> 28)
+                i++;
+            strcpy(cad, cod[i].mnemo);
+            if (((inst >> 26) & 0x03) == 0x00)
+            { // operando 1 inmediato
+                sprintf(op1, " %d,", ((inst >> 12) & 0x00FFF));
+                strcat(cad, op1);
+            }
+            else if (((inst >> 26) & 0x03) == 0x01)
+            { // operando 1 de registro
+                j = 0;
+                while (reg[j].hex != ((inst >> 12) & 0x00FFF))
+                    j++;
+                sprintf(op1, " %s,", reg[j].mnemo);
+                strcat(cad, op1);
+            }
+            else if (((inst >> 26) & 0x03) == 0x02)
+            { // operando 1 directo
+                sprintf(op1, " [%d],", ((inst >> 12) & 0x00FFF));
+                strcat(cad, op1);
+            }
+
+            if (((inst >> 24) & 0x03) == 0x00)
+            { // operando 2 inmediato
+                sprintf(op1, "%d", (inst & 0x00000FFF));
+                strcat(cad, op1);
+            }
+            else if (((inst >> 24) & 0x03) == 0x01)
+            { // operando 2 de registro
+                j = 0;
+                while (reg[j].hex != (inst & 0x00000FFF))
+                    j++;
+                sprintf(op1, "%s", reg[j].mnemo);
+                strcat(cad, op1);
+            }
+            else if (((inst >> 24) & 0x03) == 0x02)
+            { // operando 2 directo
+                sprintf(op1, "[%d]", (inst & 0x00000FFF));
+                strcat(cad, op1);
+            }
+        }
+    }
+}
+
+void proxinstruccion()
+{
+    int voAval, voBval;
+    int *voA = &voAval, *voB = &voBval;
+    int instruccion;
+    int mnemo, cantOperandos;
+    instruccion = RAM[REG[5]];
+    REG[5]++;
+    decInstruccion(instruccion, &cantOperandos, &mnemo);
+    traduceOperandos(instruccion, cantOperandos, &voA, &voB);
+    vecFunciones[mnemo](voA, voB);
 }
