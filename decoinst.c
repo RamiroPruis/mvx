@@ -158,7 +158,7 @@ void decInstruccion(int instruccion, int *cantOperando, int *codigo)
     //codigo 0 op
     *cantOperando = 0;
     *codigo = (instruccion >> 20) & 0xFFF;
-    *codigo = *codigo - 4056; //Para el vector Funciones
+    *codigo = *codigo - 4057; //Para el vector Funciones
   }
   else if (((instruccion >> 28) & 0xF) == 0xF)
   {
@@ -210,7 +210,7 @@ void cambiaCC(int val)
   else if (val < 0)
     REG[8] = 0x80000000;
   else
-    REG[8] = 1; //preguntar
+    REG[8] = 0;
 }
 
 //OPERACIONES
@@ -312,8 +312,9 @@ void JZ(int *valA, int *valB)
 
 void JP(int *valA, int *valB)
 {
-  if (REG[8] > 0)
+  if (REG[8] == 0){
     REG[5] = *valA;
+  }
 }
 
 void JN(int *valA, int *valB)
@@ -351,7 +352,6 @@ void NOT(int *valA, int *valB)
 
 void STOP(int *valA, int *valB)
 {
-
   REG[5] = REG[0];
 }
 
