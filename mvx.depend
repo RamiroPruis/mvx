@@ -29,11 +29,17 @@
 	<stdlib.h>
 	"decoinst.h"
 
-1619135471 source:c:\users\maria\desktop\facu\5to c\arquitectura de computadoras\mv\mvx\decoinst.c
+1619449353 source:c:\users\maria\desktop\facu\5to c\arquitectura de computadoras\mv\mvx\decoinst.c
 	<stdlib.h>
 	<stdio.h>
 	<string.h>
 	"decoinst.h"
 
-1619133527 c:\users\maria\desktop\facu\5to c\arquitectura de computadoras\mv\mvx\decoinst.h
+1619444564 c:\users\maria\desktop\facu\5to c\arquitectura de computadoras\mv\mvx\decoinst.h
+
+1619450622 source:c:\users\maria\desktop\facu\5to c\arquitectura de computadoras\mv\mvx\main.c
+	<stdio.h>
+	<stdlib.h>
+	"decoinst.h"
+	<string.h>
 
