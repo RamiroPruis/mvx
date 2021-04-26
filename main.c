@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
   const char *bin=&argv[1][len-4];
 
   if (argc<2)
-    printf("Error. Faltan argumentos. Recomendacion:\n mvx.exe BinFilename [-b] [-c] [-d] (flags opcionales[])");
+    printf("Error. Faltan argumentos. Recomendacion:\n mvx.exe BinFilename [-b] [-c] [-d] (flags opcionales[]) \n");
   else
     if (strcmp(bin,".bin")!=0) //SI LA EXTENSION NO ES .BIN
         printf("Error. El archivo binario no es de tipo .bin \n");
