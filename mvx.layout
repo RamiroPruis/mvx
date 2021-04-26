@@ -4,17 +4,17 @@
 	<ActiveTarget name="Debug" />
 	<File name="decoinst.h" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="142" topLine="0" />
+			<Cursor1 position="1246" topLine="25" />
 		</Cursor>
 	</File>
-	<File name="main.c" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="3" zoom_2="0">
+	<File name="main.c" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="3" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1298" topLine="60" />
+			<Cursor1 position="68" topLine="48" />
 		</Cursor>
 	</File>
-	<File name="decoinst.c" open="1" top="1" tabpos="2" split="0" active="1" splitpos="0" zoom_1="3" zoom_2="0">
+	<File name="decoinst.c" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="3" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="6432" topLine="295" />
+			<Cursor1 position="6432" topLine="235" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>

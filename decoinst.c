@@ -379,8 +379,8 @@ void SYS(int *valA, int *valB)
 {
   char rta[20];
   char prompt[10] = "";
-  char cad[100] = {"\0"};
-  char cad2[100] = {""};
+  char cad[500] = {"\0"};
+  char cad2[500] = {""};
   char caracter;
   char entrada[100];
   int i, condChar = 0;
@@ -478,7 +478,7 @@ void SYS(int *valA, int *valB)
           else
             printf(" %s\n", DISASEMBLER[i]);
 
-      proxinstruccion();
+      //proxinstruccion();
       sprintf(cad, "Registros:\n");
       int j = 0;
       for (i = 1; i <= 4; i++)
