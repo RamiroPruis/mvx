@@ -1,4 +1,7 @@
-
+typedef struct
+{
+    int flagB, flagC, flagD;
+} TregFlags;
 
 typedef struct
 {

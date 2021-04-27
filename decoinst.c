@@ -158,7 +158,7 @@ void decInstruccion(int instruccion, int *cantOperando, int *codigo)
     //codigo 0 op
     *cantOperando = 0;
     *codigo = (instruccion >> 20) & 0xFFF;
-    *codigo = *codigo - 4057; //Para el vector Funciones
+    *codigo = *codigo - 4056; //Para el vector Funciones
   }
   else if (((instruccion >> 28) & 0xF) == 0xF)
   {
@@ -210,7 +210,7 @@ void cambiaCC(int val)
   else if (val < 0)
     REG[8] = 0x80000000;
   else
-    REG[8] = 0;
+    REG[8] = 1; //preguntar
 }
 
 //OPERACIONES
@@ -312,9 +312,8 @@ void JZ(int *valA, int *valB)
 
 void JP(int *valA, int *valB)
 {
-  if (REG[8] == 0){
+  if (REG[8] > 0)
     REG[5] = *valA;
-  }
 }
 
 void JN(int *valA, int *valB)
@@ -352,6 +351,7 @@ void NOT(int *valA, int *valB)
 
 void STOP(int *valA, int *valB)
 {
+
   REG[5] = REG[0];
 }
 
@@ -377,7 +377,7 @@ void RND(int *valA, int *valB)
 
 void SYS(int *valA, int *valB)
 {
-  char rta[20];
+  char rta[20] = {"\0"};
   char prompt[10] = "";
   char cad[500] = {"\0"};
   char cad2[500] = {""};
@@ -401,18 +401,18 @@ void SYS(int *valA, int *valB)
     else
     {
       if ((REG[10] & 0x8) != 0)
-        strcat(cad, "%x ");
+        strcat(cad, " %x");
       if ((REG[10] & 0x4) != 0)
-        strcat(cad, "%o ");
+        strcat(cad, " %o");
       if ((REG[10] & 0x1) != 0)
-        strcat(cad, "%d ");
+        strcat(cad, " %d");
     }
 
     if (condChar == 0)
       for (i = 0; i < REG[12]; i++)
       {
         printf(prompt, REG[13] + i);
-        scanf(cad, &(RAM[REG[0] + REG[13] + i]));
+        scanf(cad, &RAM[REG[0] + REG[13] + i]);
       }
     else
     {
@@ -499,6 +499,7 @@ void SYS(int *valA, int *valB)
     if (flagB)
     {
       printf("[%04d] cmd: ", REG[5]);
+      fflush(stdin);
       fgets(rta, 20, stdin);
       rta[strcspn(rta, "\n")] = 0; //Esto creo que le corta el \n
       printf("\n");
@@ -532,6 +533,7 @@ void pasoApaso(char rta[])
     // vecFunciones[mnemo](voA, voB); //Ejecuta
     proxinstruccion();
     printf("[%04d] cmd: ", REG[5]);
+    fflush(stdin);
     fgets(rta, 20, stdin);
     rta[strcspn(rta, "\n")] = 0;
     printf("\n");
@@ -563,6 +565,7 @@ void muestraValor(char rta[])
         printf("[%04d] cmd: %04X %04X %d\n", rtaInt1, (RAM[rtaInt1] >> 16) & 0x000000FF, RAM[rtaInt1] & 0x000000FF, RAM[rtaInt1]);
     }
     printf("[%04d] cmd: ", REG[5]);
+    fflush(stdin);
     fgets(rta, 20, stdin);
     rta[strcspn(rta, "\n")] = 0;
     printf("\n");
@@ -604,8 +607,8 @@ void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[])
 {
   int i, j;
   char op1[5] = "\0";
-  int aver1 = (inst >> 24) == 0xFF;
-  int aver2 = ((inst >> 20) & 0xFFF);
+  int aver1 = (inst >> 28) & 0xF;
+  int aver2 = cod[11].hex;
 
   if (((inst >> 24) & 0xFF) == 0x000000FF)
   { // Sin operandos
@@ -644,7 +647,7 @@ void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[])
     else
     { // 2 operandos
       i = 0;
-      while (cod[i].hex != inst >> 28)
+      while ((cod[i].hex) != ((inst >> 28) & 0xF))
         i++;
       strcpy(cad, cod[i].mnemo);
       if (((inst >> 26) & 0x03) == 0x00)

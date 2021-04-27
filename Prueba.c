@@ -73,56 +73,37 @@ Tvec vecMnemo[25];
 int main(/*int argc, char *argv[]*/)
 {
     FILE *arch;
-    int instruccion;
-    int i = 0;
-    int mnemo, cantOperandos;
-    int fgB = 0, fgC = 0, fgD = 0;
-    int voAval, voBval;
-    int *voA = &voAval, *voB = &voBval;
-    //int len=strlen(argv[1]);
-    //const char *bin=&argv[1][len-4];
+    //  int instruccion;
+    int i = 0, j = 0;
+    // int mnemo, cantOperandos;
+    //  int voAval, voBval;
+    //  int *voA = &voAval, *voB = &voBval;
+    //size_t len = strlen(argv[1]);
+    //const char *bin = &argv[1][len - 4];
 
-    // *voA = 2;
-    // REG[0] = 15;
-    // REG[10] =  0x10;
-    // RAM[REG[0] + 1] = 30;
-    // RAM[REG[0] + 2] = 'o';
-    // RAM[REG[0] + 3] = 'l';
-    // RAM[REG[0] + 4] = 'a';
-    // RAM[REG[0] + 5] = '\0';
-    // REG[13] = 1;
-    // REG[12] = 4;
+    // if (argc<2)
+    //   printf("Error. Faltan argumentos. Recomendacion:\n mvx.exe BinFilename [-b] [-c] [-d] (flags opcionales[]) \n");
+    // else
+    //   if (strcmp(bin,".bin")!=0) //SI LA EXTENSION NO ES .BIN
+    //       printf("Error. El archivo binario no es de tipo .bin \n");
+    //   else
+    //       if (argc>2){
+    //           j=3;
+    //           while (j<=argc){
+    //               if (strcmp(argv[j-1],"-b")==0)
+    //                   flagB=1;
+    //               else
+    //                   if (strcmp(argv[j-1],"-c")==0)
+    //                       flagC=1;
 
-    // SYS(voA, 0);
-
-    /*
-  if (argc<2)
-    printf("Error. Faltan argumentos. Recomendacion:\n
-           mvx.exe BinFilename [-b] [-c] [-d] (flags opcionales[])");
-  else
-    if (strcmp(argv[1],bin)!=0){ //SI LA EXTENSION NO ES .BIN
-        printf("Error. El archivo binario no es de tipo .bin");
-    else
-        if (argc>2){
-            i=3;
-            while (i<=argc){
-                switch argv[i-1]:
-                case "-b":
-                    fgB=1;
-                    break;
-                case "-c":
-                    fgC=1;
-                    break;
-                case "-d":
-                    fgD=1;
-                    break;
-            }
-        }
-
-  */
+    //                   else
+    //                       flagD=1;
+    //               j++;
+    //           }
+    //       }
     flagD = 1;
-
-    if ((arch = fopen("holaquetal.bin", "rb")) == NULL)
+    flagB = 1;
+    if ((arch = fopen("3 (4).bin", "rb")) == NULL)
         return 1;
     creadicc(vecMnemo);
     creaReg(vecReg);
@@ -147,27 +128,23 @@ int main(/*int argc, char *argv[]*/)
     {
         //mostramos por primera vez
         for (int i = 0; i < REG[0]; i++)
-            printf("%s\n", DISASEMBLER[i]);
+            printf("%s\n", DISASEMBLER[i].cadena);
         printf("\n");
     }
 
     cargaFunciones();
 
-    flagB = 1;
-    flagC = 0;
     while (REG[5] >= 0 && REG[5] < REG[0])
     {
-        //Obtener proxima instruccion
+        // Obtener proxima instruccion
         // instruccion = RAM[REG[5]];
         // REG[5]++;
         // decInstruccion(instruccion, &cantOperandos, &mnemo);
         // traduceOperandos(instruccion, cantOperandos, &voA, &voB);
         // //printf("[%04d]: %02X %02X %02X %02X\n", REG[5], (instruccion >> 24) & 0xFF, (instruccion >> 16) & 0xFF, (instruccion >> 8) & 0xFF, (instruccion >> 0) & 0xFF);
         // vecFunciones[mnemo](voA, voB); //Ejecuta
-
         proxinstruccion();
     }
-
     return 0;
 }
 
@@ -534,7 +511,7 @@ void RND(int *valA, int *valB)
 
 void SYS(int *valA, int *valB)
 {
-    char rta[20];
+    char rta[20] = {"\0"};
     char prompt[10] = "";
     char cad[500] = {"\0"};
     char cad2[500] = {""};
@@ -558,18 +535,18 @@ void SYS(int *valA, int *valB)
         else
         {
             if ((REG[10] & 0x8) != 0)
-                strcat(cad, "%x ");
+                strcat(cad, " %x");
             if ((REG[10] & 0x4) != 0)
-                strcat(cad, "%o ");
+                strcat(cad, " %o");
             if ((REG[10] & 0x1) != 0)
-                strcat(cad, "%d ");
+                strcat(cad, " %d");
         }
 
         if (condChar == 0)
             for (i = 0; i < REG[12]; i++)
             {
                 printf(prompt, REG[13] + i);
-                scanf(cad, &(RAM[REG[0] + REG[13] + i]));
+                scanf(cad, &RAM[REG[0] + REG[13] + i]);
             }
         else
         {
@@ -656,6 +633,7 @@ void SYS(int *valA, int *valB)
         if (flagB)
         {
             printf("[%04d] cmd: ", REG[5]);
+            fflush(stdin);
             fgets(rta, 20, stdin);
             rta[strcspn(rta, "\n")] = 0; //Esto creo que le corta el \n
             printf("\n");
@@ -689,6 +667,7 @@ void pasoApaso(char rta[])
         // vecFunciones[mnemo](voA, voB); //Ejecuta
         proxinstruccion();
         printf("[%04d] cmd: ", REG[5]);
+        fflush(stdin);
         fgets(rta, 20, stdin);
         rta[strcspn(rta, "\n")] = 0;
         printf("\n");
@@ -720,6 +699,7 @@ void muestraValor(char rta[])
                 printf("[%04d] cmd: %04X %04X %d\n", rtaInt1, (RAM[rtaInt1] >> 16) & 0x000000FF, RAM[rtaInt1] & 0x000000FF, RAM[rtaInt1]);
         }
         printf("[%04d] cmd: ", REG[5]);
+        fflush(stdin);
         fgets(rta, 20, stdin);
         rta[strcspn(rta, "\n")] = 0;
         printf("\n");
@@ -761,8 +741,8 @@ void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[])
 {
     int i, j;
     char op1[5] = "\0";
-    int aver1 = (inst >> 24) == 0xFF;
-    int aver2 = ((inst >> 20) & 0xFFF);
+    int aver1 = (inst >> 28) & 0xF;
+    int aver2 = cod[11].hex;
 
     if (((inst >> 24) & 0xFF) == 0x000000FF)
     { // Sin operandos
@@ -801,7 +781,7 @@ void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[])
         else
         { // 2 operandos
             i = 0;
-            while (cod[i].hex != inst >> 28)
+            while ((cod[i].hex) != ((inst >> 28) & 0xF))
                 i++;
             strcpy(cad, cod[i].mnemo);
             if (((inst >> 26) & 0x03) == 0x00)
