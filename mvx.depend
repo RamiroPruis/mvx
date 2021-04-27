@@ -43,3 +43,17 @@
 	"decoinst.h"
 	<string.h>
 
+1619449353 source:c:\users\maria\desktop\maquina virtual\mvx\decoinst.c
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	"decoinst.h"
+
+1619444564 c:\users\maria\desktop\maquina virtual\mvx\decoinst.h
+
+1619470826 source:c:\users\maria\desktop\maquina virtual\mvx\main.c
+	<stdio.h>
+	<stdlib.h>
+	"decoinst.h"
+	<string.h>
+

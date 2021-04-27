@@ -18,11 +18,7 @@ Tvec vecMnemo[25];
 int main(int argc, char *argv[])
 {
   FILE *arch;
-//  int instruccion;
   int i=0,j=0;
-// int mnemo, cantOperandos;
-//  int voAval, voBval;
-//  int *voA = &voAval, *voB = &voBval;
   size_t len=strlen(argv[1]);
   const char *bin=&argv[1][len-4];
 
@@ -62,10 +58,13 @@ int main(int argc, char *argv[])
       i++;
     }
   }
-
   REG[0] = i; //DS apunta a la ultima linea de binario a interpretar
 
   REG[5] = 0; //IP
+
+  if (flagC){
+    system("cls");
+  }
 
   if (flagD)
   {
@@ -79,13 +78,6 @@ int main(int argc, char *argv[])
 
   while (REG[5] >= 0 && REG[5] < REG[0])
   {
-    // Obtener proxima instruccion
-    // instruccion = RAM[REG[5]];
-    // REG[5]++;
-    // decInstruccion(instruccion, &cantOperandos, &mnemo);
-    // traduceOperandos(instruccion, cantOperandos, &voA, &voB);
-    // //printf("[%04d]: %02X %02X %02X %02X\n", REG[5], (instruccion >> 24) & 0xFF, (instruccion >> 16) & 0xFF, (instruccion >> 8) & 0xFF, (instruccion >> 0) & 0xFF);
-    // vecFunciones[mnemo](voA, voB); //Ejecuta
     proxinstruccion();
   }
   return 0;
