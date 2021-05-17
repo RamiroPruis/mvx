@@ -102,7 +102,7 @@ int main(/*int argc, char *argv[]*/)
     //       }
     flagD = 1;
     flagB = 1;
-    if ((arch = fopen("bin2.bin", "rb")) == NULL)
+    if ((arch = fopen("bin3.bin", "rb")) == NULL)
         return 1;
     creadicc(vecMnemo);
     creaReg(vecReg);
@@ -132,9 +132,12 @@ int main(/*int argc, char *argv[]*/)
     }
 
     cargaFunciones();
-
+    RAM[999] = 0;
     while (REG[5] >= 0 && REG[5] < REG[0])
+    {
         proxinstruccion();
+    }
+
     return 0;
 }
 //Termina main
@@ -336,7 +339,7 @@ void cambiaCC(int val)
     else if (val < 0)
         REG[8] = 0x80000000;
     else
-        REG[8] = 1; //preguntar
+        REG[8] = 0; //preguntar
 }
 
 //OPERACIONES
@@ -438,7 +441,7 @@ void JZ(int *valA, int *valB)
 
 void JP(int *valA, int *valB)
 {
-    if (REG[8] > 0)
+    if (REG[8] == 0)
         REG[5] = *valA;
 }
 
@@ -450,7 +453,7 @@ void JN(int *valA, int *valB)
 
 void JNZ(int *valA, int *valB)
 {
-    if (REG[8] == 0)
+    if (REG[8] != 1)
         REG[5] = *valA;
 }
 
