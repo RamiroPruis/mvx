@@ -1,5 +1,3 @@
-
-
 typedef struct
 {
     char mnemo[10];

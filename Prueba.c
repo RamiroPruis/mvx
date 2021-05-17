@@ -2,11 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-typedef struct
-{
-    int flagB, flagC, flagD;
-} TregFlags;
-
+//Comienza .h
 typedef struct
 {
     char mnemo[10];
@@ -58,15 +54,18 @@ void dissasembler(int, int);
 void traduceIntruccion(char[], int, Tvec[], Tvec[]);
 void proxinstruccion();
 
+//Termina .h
+
+//Empieza main
 int RAM[4096];
 int REG[16];
 int voAStaticVal, voBStaticVal;
 int *voAStatic = &voAStaticVal;
 int *voBStatic = &voBStaticVal;
 Tdisasembler DISASEMBLER[1000];
-int flagB;
-int flagC;
-int flagD;
+int flagB = 0;
+int flagC = 0;
+int flagD = 0;
 Tvec vecReg[10];
 Tvec vecMnemo[25];
 
@@ -103,7 +102,7 @@ int main(/*int argc, char *argv[]*/)
     //       }
     flagD = 1;
     flagB = 1;
-    if ((arch = fopen("3 (4).bin", "rb")) == NULL)
+    if ((arch = fopen("bin2.bin", "rb")) == NULL)
         return 1;
     creadicc(vecMnemo);
     creaReg(vecReg);
@@ -135,19 +134,12 @@ int main(/*int argc, char *argv[]*/)
     cargaFunciones();
 
     while (REG[5] >= 0 && REG[5] < REG[0])
-    {
-        // Obtener proxima instruccion
-        // instruccion = RAM[REG[5]];
-        // REG[5]++;
-        // decInstruccion(instruccion, &cantOperandos, &mnemo);
-        // traduceOperandos(instruccion, cantOperandos, &voA, &voB);
-        // //printf("[%04d]: %02X %02X %02X %02X\n", REG[5], (instruccion >> 24) & 0xFF, (instruccion >> 16) & 0xFF, (instruccion >> 8) & 0xFF, (instruccion >> 0) & 0xFF);
-        // vecFunciones[mnemo](voA, voB); //Ejecuta
         proxinstruccion();
-    }
     return 0;
 }
+//Termina main
 
+//Arranca .c
 void creadicc(Tvec vec[])
 {
     strcpy(vec[0].mnemo, "MOV");
@@ -837,3 +829,5 @@ void proxinstruccion()
     traduceOperandos(instruccion, cantOperandos, &voA, &voB);
     vecFunciones[mnemo](voA, voB);
 }
+
+//Termina .c

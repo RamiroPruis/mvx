@@ -48,7 +48,7 @@ int main(/*int argc, char *argv[]*/)
   //       }
   flagD = 1;
   flagB = 1;
-  if ((arch = fopen("3 (4).bin", "rb")) == NULL)
+  if ((arch = fopen("bin2.bin", "rb")) == NULL)
     return 1;
   creadicc(vecMnemo);
   creaReg(vecReg);
@@ -80,15 +80,6 @@ int main(/*int argc, char *argv[]*/)
   cargaFunciones();
 
   while (REG[5] >= 0 && REG[5] < REG[0])
-  {
-    // Obtener proxima instruccion
-    // instruccion = RAM[REG[5]];
-    // REG[5]++;
-    // decInstruccion(instruccion, &cantOperandos, &mnemo);
-    // traduceOperandos(instruccion, cantOperandos, &voA, &voB);
-    // //printf("[%04d]: %02X %02X %02X %02X\n", REG[5], (instruccion >> 24) & 0xFF, (instruccion >> 16) & 0xFF, (instruccion >> 8) & 0xFF, (instruccion >> 0) & 0xFF);
-    // vecFunciones[mnemo](voA, voB); //Ejecuta
     proxinstruccion();
-  }
   return 0;
 }
