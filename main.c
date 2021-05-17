@@ -48,7 +48,7 @@ int main(/*int argc, char *argv[]*/)
   //       }
   flagD = 1;
   flagB = 1;
-  if ((arch = fopen("bin2.bin", "rb")) == NULL)
+  if ((arch = fopen("1.bin", "rb")) == NULL)
     return 1;
   creadicc(vecMnemo);
   creaReg(vecReg);

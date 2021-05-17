@@ -16,18 +16,19 @@
 	<string.h>
 	"decoinst.h"
 
-1619443825 source:e:\datos\escritorio\mvx\decoinst.c
+1621274077 source:e:\datos\escritorio\mvx\decoinst.c
 	<stdlib.h>
 	<stdio.h>
 	<string.h>
 	"decoinst.h"
 
-1619319073 e:\datos\escritorio\mvx\decoinst.h
+1621274013 e:\datos\escritorio\mvx\decoinst.h
 
-1619443786 source:e:\datos\escritorio\mvx\main.c
+1621294105 source:e:\datos\escritorio\mvx\main.c
 	<stdio.h>
 	<stdlib.h>
 	"decoinst.h"
+	<string.h>
 
 1619449353 source:c:\users\maria\desktop\facu\5to c\arquitectura de computadoras\mv\mvx\decoinst.c
 	<stdlib.h>
