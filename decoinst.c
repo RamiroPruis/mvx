@@ -210,11 +210,10 @@ void cambiaCC(int val)
   if (val == 0)
     REG[8] = 1;
   else if (val < 0)
-    REG[8] = 0x8000;
+    REG[8] = 0x80000000;
   else
-    REG[8] = 0; //preguntar
+    REG[8] = 0;
 }
-
 //OPERACIONES
 void MOV(int *valA, int *valB)
 {
@@ -320,7 +319,7 @@ void JP(int *valA, int *valB)
 
 void JN(int *valA, int *valB)
 {
-  if (REG[8] == 0x8000)
+  if (REG[8] == 0x80000000)
     REG[5] = *valA;
 }
 
@@ -332,7 +331,7 @@ void JNZ(int *valA, int *valB)
 
 void JNP(int *valA, int *valB)
 {
-  if (REG[8] == 0x8000 || REG[8] == 1)
+  if (REG[8] == 0x80000000 || REG[8] == 1)
     REG[5] = *valA;
 }
 
