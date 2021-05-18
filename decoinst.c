@@ -428,9 +428,9 @@ void SYS(int *valA, int *valB)
     if ((REG[10] & 0x10) != 0)
       strcat(cad2, " %c");
     if ((REG[10] & 0x8) != 0)
-      strcat(cad, " %X");
+      strcat(cad, "  % %%08X");
     if ((REG[10] & 0x4) != 0)
-      strcat(cad, " %o");
+      strcat(cad, " @%08o");
     if ((REG[10] & 0x1) != 0)
       strcat(cad, " %d");
     if ((REG[10] & 0x100) == 0)
