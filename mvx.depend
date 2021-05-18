@@ -3,14 +3,15 @@
 	<stdio.h>
 	<stdlib.h>
 
-1619051649 source:e:\users\ramiro\documents\facultad\3ro\arqui\maquina virtual\mvx\mvx\main.c
+1621347507 source:e:\users\ramiro\documents\facultad\3ro\arqui\maquina virtual\mvx\mvx\main.c
 	<stdio.h>
 	<stdlib.h>
 	"decoinst.h"
+	<string.h>
 
-1619042748 e:\users\ramiro\documents\facultad\3ro\arqui\maquina virtual\mvx\mvx\decoinst.h
+1621354753 e:\users\ramiro\documents\facultad\3ro\arqui\maquina virtual\mvx\mvx\decoinst.h
 
-1619051790 source:e:\users\ramiro\documents\facultad\3ro\arqui\maquina virtual\mvx\mvx\decoinst.c
+1621355933 source:e:\users\ramiro\documents\facultad\3ro\arqui\maquina virtual\mvx\mvx\decoinst.c
 	<stdlib.h>
 	<stdio.h>
 	<string.h>

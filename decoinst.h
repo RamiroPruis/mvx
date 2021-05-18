@@ -47,4 +47,5 @@ void muestraValor(char[]);
 void pasoApaso(char[]);
 void dissasembler(int, int);
 void traduceIntruccion(char[], int, Tvec[], Tvec[]);
+void trunca(int *, int);
 void proxinstruccion();
