@@ -210,7 +210,7 @@ void cambiaCC(int val)
   if (val == 0)
     REG[8] = 1;
   else if (val < 0)
-    REG[8] = 0x80000000;
+    REG[8] = 0x8000;
   else
     REG[8] = 0; //preguntar
 }
@@ -320,7 +320,7 @@ void JP(int *valA, int *valB)
 
 void JN(int *valA, int *valB)
 {
-  if (REG[8] == 0x80000000)
+  if (REG[8] == 0x8000)
     REG[5] = *valA;
 }
 
@@ -332,7 +332,7 @@ void JNZ(int *valA, int *valB)
 
 void JNP(int *valA, int *valB)
 {
-  if (REG[8] == 0x80000000 || REG[8] == 1)
+  if (REG[8] == 0x8000 || REG[8] == 1)
     REG[5] = *valA;
 }
 
@@ -359,17 +359,16 @@ void STOP(int *valA, int *valB)
 
 void LDL(int *valA, int *valB)
 {
-
-  REG[9] = REG[9] & 0xFFFFFF00;
-  *valA &= 0x000000FF;
-  REG[9] |= (*valA);
+  int aux = *valA & 0xFFFF;
+  REG[9] = REG[9] & 0xFFFF0000;
+  REG[9] |= aux;
 }
 
 void LDH(int *valA, int *valB)
 {
-  REG[9] = REG[9] & 0x00FFFFFF;
-  *valA = (*valA << 24) & 0xFF000000;
-  REG[9] |= (*valA);
+  int aux = (*valA & 0xFFFF) << 16;
+  REG[9] = REG[9] & 0x0000FFFF;
+  REG[9] |= aux;
 }
 
 void RND(int *valA, int *valB)
