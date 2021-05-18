@@ -102,7 +102,7 @@ int main(/*int argc, char *argv[]*/)
     //       }
     flagD = 1;
     flagB = 1;
-    if ((arch = fopen("bin3.bin", "rb")) == NULL)
+    if ((arch = fopen("1.bin", "rb")) == NULL)
         return 1;
     creadicc(vecMnemo);
     creaReg(vecReg);
@@ -287,7 +287,7 @@ void decInstruccion(int instruccion, int *cantOperando, int *codigo)
         //codigo 0 op
         *cantOperando = 0;
         *codigo = (instruccion >> 20) & 0xFFF;
-        *codigo = *codigo - 4056; //Para el vector Funciones
+        *codigo = *codigo - 4057; //Para el vector Funciones
     }
     else if (((instruccion >> 28) & 0xF) == 0xF)
     {
@@ -459,7 +459,7 @@ void JNZ(int *valA, int *valB)
 
 void JNP(int *valA, int *valB)
 {
-    if (REG[8] == 0x8000000 || REG[8] == 1)
+    if (REG[8] == 0x80000000 || REG[8] == 1)
         REG[5] = *valA;
 }
 
@@ -555,15 +555,15 @@ void SYS(int *valA, int *valB)
     else if (*valA == 2)
     {
         if ((REG[10] & 0x10) != 0)
-            strcat(cad2, "%c");
+            strcat(cad2, " %c");
         if ((REG[10] & 0x8) != 0)
-            strcat(cad, "%X");
+            strcat(cad, " %X");
         if ((REG[10] & 0x4) != 0)
-            strcat(cad, "%o");
+            strcat(cad, " %o");
         if ((REG[10] & 0x1) != 0)
-            strcat(cad, "%d");
+            strcat(cad, " %d");
         if ((REG[10] & 0x100) == 0)
-            strcat(cad, "\n");
+            strcat(cad, " \n");
 
         for (i = 0; i < REG[12]; i++)
         {

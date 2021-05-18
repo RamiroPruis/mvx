@@ -78,8 +78,11 @@ int main(/*int argc, char *argv[]*/)
   }
 
   cargaFunciones();
-
+  RAM[999] = 0;
   while (REG[5] >= 0 && REG[5] < REG[0])
+  {
     proxinstruccion();
+  }
+
   return 0;
 }
