@@ -485,6 +485,7 @@ void SYS(int *valA, int *valB)
       {
         while (j < i * 4)
         {
+          fflush(stdin);
           if (vecReg[j].mnemo[0] != '\0')
             sprintf(cad2, "%s = %15d |", vecReg[j].mnemo, REG[j]);
           else

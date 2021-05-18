@@ -102,7 +102,7 @@ int main(/*int argc, char *argv[]*/)
     //       }
     flagD = 1;
     flagB = 1;
-    if ((arch = fopen("1.bin", "rb")) == NULL)
+    if ((arch = fopen("2.bin", "rb")) == NULL)
         return 1;
     creadicc(vecMnemo);
     creaReg(vecReg);
@@ -557,9 +557,9 @@ void SYS(int *valA, int *valB)
         if ((REG[10] & 0x10) != 0)
             strcat(cad2, " %c");
         if ((REG[10] & 0x8) != 0)
-            strcat(cad, " %X");
+            strcat(cad, "  % %%08X");
         if ((REG[10] & 0x4) != 0)
-            strcat(cad, " %o");
+            strcat(cad, " @%08o");
         if ((REG[10] & 0x1) != 0)
             strcat(cad, " %d");
         if ((REG[10] & 0x100) == 0)
@@ -614,6 +614,7 @@ void SYS(int *valA, int *valB)
             {
                 while (j < i * 4)
                 {
+                    fflush(stdin);
                     if (vecReg[j].mnemo[0] != '\0')
                         sprintf(cad2, "%s = %15d |", vecReg[j].mnemo, REG[j]);
                     else
