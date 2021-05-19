@@ -902,6 +902,17 @@ void iniciaEjecucion(FILE *arch, int *i)
                 setParteAlta(&REG[1], vec[2]);
                 setParteBaja(&REG[1], vec[4] + vec[1] + vec[3]); //En la posicion que indique la suma de los tamaños anteriores
                 *i = 0;                                          //Ponemos el i en 0 para que comienze la lectura en la RAM desde cero
+
+                //Inicializamos los registros restantes
+                REG[4] = -1;
+                for (int j = 5; j <= 15; j++)
+                    REG[j] = 0;
+                //SP lo inicialziamos con el tamaño de la pila en la parte baja, y en la alta con el codigo de segmento del SS
+                setParteAlta(&REG[6], 1);
+                setParteBaja(&REG[6], vec[2]);
+                //BP lo inicializamos con cero en la parte baja, y en la alta con el codigo de segmento del SS
+                setParteAlta(&REG[7], 1);
+                setParteBaja(&REG[7], 0);
             }
             else
             {
@@ -920,19 +931,6 @@ void iniciaEjecucion(FILE *arch, int *i)
         printf("El formato de archivo x.bin no es correcto\n");
         *i = -1;
     }
-
-    // if (!flagD)
-    //     while (fread(&RAM[i], sizeof(int), 1, arch) == 1)
-    //         i++;
-    // else
-    // {
-    //     printf("Codigo:\n");
-    //     while (fread(&RAM[i], sizeof(int), 1, arch) == 1)
-    //     {
-    //         dissasembler(RAM[i], i);
-    //         i++;
-    //     }
-    // }
 }
 
 void setParteAlta(int *num, int val)
