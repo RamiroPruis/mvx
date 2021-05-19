@@ -36,6 +36,10 @@ void LDL(int *, int *);
 void LDH(int *, int *);
 void RND(int *, int *);
 void SYS(int *, int *);
+void PUSH(int *, int *);
+void POP(int *, int *);
+void CALL(int *, int *);
+void RET(int *, int *);
 
 void creadicc(Tvec[]);
 void creaReg(Tvec[]);
