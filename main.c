@@ -53,7 +53,7 @@ int main(/*int argc, char *argv[]*/)
 
   //Encabezado
   iniciaEjecucion(arch, &i);
-  if (i == 5)
+  if (i == 0)
   {
     creadicc(vecMnemo);
     creaReg(vecReg);

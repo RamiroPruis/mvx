@@ -762,6 +762,7 @@ void iniciaEjecucion(FILE *arch, int *i)
         //Stack Segment SS
         setParteAlta(&REG[1], vec[2]);
         setParteBaja(&REG[1], vec[4] + vec[1] + vec[3]); //En la posicion que indique la suma de los tamaños anteriores
+        *i = 0;                                          //Ponemos el i en 0 para que comienze la lectura en la RAM desde cero
       }
       else
       {
