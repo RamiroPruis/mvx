@@ -120,15 +120,18 @@ void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
     voBux = instruccion & 0x00000FFF;
     trunca(&voBux, 12);
     //       A
-    if (toA == 0x00)
+    if (toA == 0x00)  //INMEDIATO
     {
       *voAStatic = voAux;
       *voA = voAStatic;
     }
-    else if (toA == 0x01)
+    else if (toA == 0x01) //DE REGISTRO
       *voA = &REG[voAux];
-    else
+    else if (toA == 0x10) //DIRECTO
       *voA = &RAM[(voAux + REG[0])];
+    else{ //OP INDIRECTO
+      *voA=  devuelveIndirecto(voAux);
+    }
 
     //      B
     if (toB == 0x00)
@@ -138,8 +141,10 @@ void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
     }
     else if (toB == 0x01)
       *voB = &REG[voBux];
-    else
+    else if (toB == 0x10)
       *voB = &RAM[(voBux + REG[0])];
+    else //INDIRECTO
+
   }
   else if (cantOperandos == 1)
   {
@@ -677,26 +682,30 @@ void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[])
       while (cod[i].hex != ((inst >> 24) & 0xFF))
         i++;
       strcpy(cad, cod[i].mnemo);
-      truncado = inst & 0x000FFFFF;
-      trunca(&truncado, 16);
       if (((inst >> 22) & 0x003) == 0x000)
       { // operando inmediato
         sprintf(op1, " %d", truncado);
         strcat(cad, op1);
+        truncado = inst & 0x000FFFFF;
+        trunca(&truncado, 16);
       }
       else if (((inst >> 22) & 0x003) == 0x001)
-      { // operando de registro
-        j = 0;
-        while (reg[j].hex != (inst & 0x000FFFFF))
-          j++;
-        sprintf(op1, " %s", reg[j].mnemo);
-        strcat(cad, op1);
-      }
-      else if (((inst >> 22) & 0x003) == 0x002)
-      { // operando directo
-        sprintf(op1, " [%d]", (inst & 0x000FFFFF));
-        strcat(cad, op1);
-      }
+          { // operando de registro
+            j = 0;
+            while (reg[j].hex != (inst & 0x000FFFFF))
+              j++;
+            sprintf(op1, " %s", reg[j].mnemo);
+            strcat(cad, op1);
+          }
+          else if (((inst >> 22) & 0x003) == 0x002)
+              { // operando directo
+                sprintf(op1, " [%d]", (inst & 0x000FFFFF));
+                strcat(cad, op1);
+              }
+              else {//INDIRECTO
+                   truncado = (inst & 0x00000FF0)>>4;
+                   trunca(&truncado, 8);
+              }
     }
     else
     { // 2 operandos
@@ -712,18 +721,21 @@ void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[])
         strcat(cad, op1);
       }
       else if (((inst >> 26) & 0x03) == 0x01)
-      { // operando 1 de registro
-        j = 0;
-        while (reg[j].hex != ((inst >> 12) & 0x00FFF))
-          j++;
-        sprintf(op1, " %s,", reg[j].mnemo);
-        strcat(cad, op1);
-      }
-      else if (((inst >> 26) & 0x03) == 0x02)
-      { // operando 1 directo
-        sprintf(op1, " [%d],", ((inst >> 12) & 0x00FFF));
-        strcat(cad, op1);
-      }
+          { // operando 1 de registro
+            j = 0;
+            while (reg[j].hex != ((inst >> 12) & 0x00FFF))
+              j++;
+            sprintf(op1, " %s,", reg[j].mnemo);
+            strcat(cad, op1);
+          }
+          else if (((inst >> 26) & 0x03) == 0x02)
+              { // operando 1 directo
+                sprintf(op1, " [%d],", ((inst >> 12) & 0x00FFF));
+                strcat(cad, op1);
+              }
+              else{ //OPERANDO 1 INDIRECTO
+
+              }
       truncado = inst & 0x00000FFF;
       trunca(&truncado, 12);
       if (((inst >> 24) & 0x03) == 0x00)
@@ -731,39 +743,53 @@ void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[])
         sprintf(op1, "%d", truncado);
         strcat(cad, op1);
       }
-      else if (((inst >> 24) & 0x03) == 0x01)
-      { // operando 2 de registro
-        j = 0;
-        while (reg[j].hex != (inst & 0x00000FFF))
-          j++;
-        sprintf(op1, "%s", reg[j].mnemo);
-        strcat(cad, op1);
-      }
-      else if (((inst >> 24) & 0x03) == 0x02)
-      { // operando 2 directo
-        sprintf(op1, "[%d]", (inst & 0x00000FFF));
-        strcat(cad, op1);
-      }
+          else if (((inst >> 24) & 0x03) == 0x01)
+          { // operando 2 de registro
+            j = 0;
+            while (reg[j].hex != (inst & 0x00000FFF))
+              j++;
+            sprintf(op1, "%s", reg[j].mnemo);
+            strcat(cad, op1);
+          }
+              else if (((inst >> 24) & 0x03) == 0x02)
+              { // operando 2 directo
+                sprintf(op1, "[%d]", (inst & 0x00000FFF));
+                strcat(cad, op1);
+              }
+              else{
+                    //OPERANDO 2 INDIRECTO
+              }
     }
   }
 }
 
 void trunca(int *ValorOperando, int bitsmax)
 {
-  int valororiginal = *ValorOperando;
-  if ((*ValorOperando > 2047 || *ValorOperando < -2048) && bitsmax == 12)
+  switch (bitsmax)
   {
-    if ((*ValorOperando & 0xFFF) >> 11) //Bit mas significativo de los 12bits es un 1 --> numero negativo
-      *ValorOperando |= 0xFFFFF000;
-    else
-      *ValorOperando = (*ValorOperando & 0x00000FFF);
-  }
-  else if ((*ValorOperando >= 32767 || *ValorOperando <= -32768) && bitsmax == 16)
-  {
-    if ((*ValorOperando & 0xFFFF) >> 15)
-      *ValorOperando |= 0xFFFF0000;
-    else
-      *ValorOperando &= 0x0000FFFF;
+      case 8:
+          if (*ValorOperando>127 || *ValorOperando<-128)
+            if ((*ValorOperando)>>7)
+                *ValorOperando|=0xFFFFFF00;
+            else
+                *ValorOperando&=0x000000FF;
+          break;
+      case 12:
+        if ((*ValorOperando > 2047 || *ValorOperando < -2048))
+            if ((*ValorOperando & 0xFFF) >> 11) //Bit mas significativo de los 12bits es un 1 --> numero negativo
+                *ValorOperando |= 0xFFFFF000;
+            else
+                *ValorOperando = (*ValorOperando & 0x00000FFF);
+        break;
+      case 16:
+        if ((*ValorOperando >= 32767 || *ValorOperando <= -32768) && bitsmax == 16)
+        {
+            if ((*ValorOperando & 0xFFFF) >> 15)
+              *ValorOperando |= 0xFFFF0000;
+            else
+              *ValorOperando &= 0x0000FFFF;
+       }
+      break;
   }
 }
 
@@ -842,6 +868,36 @@ void iniciaEjecucion(FILE *arch, int *i)
     printf("El formato de archivo x.bin no es correcto\n");
     *i = -1;
   }
+}
+
+int devuelveIndirecto(int valor){
+   short int highV = getParteAlta(valor);
+   short int lowV = getParteBaja(valor);
+   int ind;
+
+
+
+}
+
+//PARA REGISTROS
+int getPosicionAbsoluta(int valor){
+   short int highV = getParteAlta(valor);
+   short int lowV = getParteBaja(valor);
+   short int pos;
+   pos=getParteBaja(REG[highV]) + lowV;
+   if (pos>getParteBaja(REG[highV]) && pos<=getParteAlta(REG[highV]))
+//retorno pos
+    else
+        //SEGMENTATION FAULT
+}
+
+
+int getParteAlta(int valor){
+    return (valor&0xFFFF0000)>>16;
+}
+
+int getParteBaja(int valor){
+    return valor&0xFFFF;
 }
 
 void setParteAlta(int *num, int val)
