@@ -50,25 +50,31 @@ int main(/*int argc, char *argv[]*/)
   flagB = 1;
   if ((arch = fopen("5.bin", "rb")) == NULL)
     return 1;
-  creadicc(vecMnemo);
-  creaReg(vecReg);
-  if (!flagD)
-    while (fread(&RAM[i], sizeof(int), 1, arch) == 1)
-      i++;
-  else
+
+  //Encabezado
+  iniciaEjecucion(arch, &i);
+  if (i == 5)
   {
-    printf("Codigo:\n");
-    while (fread(&RAM[i], sizeof(int), 1, arch) == 1)
+    creadicc(vecMnemo);
+    creaReg(vecReg);
+    if (!flagD)
+      while (fread(&RAM[i], sizeof(int), 1, arch) == 1)
+        i++;
+    else
     {
-      dissasembler(RAM[i], i);
-      i++;
+      printf("Codigo:\n");
+      while (fread(&RAM[i], sizeof(int), 1, arch) == 1)
+      {
+        dissasembler(RAM[i], i);
+        i++;
+      }
     }
   }
-
-  REG[0] = i; //DS apunta a la ultima linea de binario a interpretar
+  //Si hubo algun problema con el encabezado no se ejecuta el programa
+  else
+    return 1;
 
   REG[5] = 0; //IP
-
   if (flagD)
   {
     //mostramos por primera vez

@@ -54,6 +54,9 @@ void dissasembler(int, int);
 void traduceIntruccion(char[], int, Tvec[], Tvec[]);
 void trunca(int *, int);
 void proxinstruccion();
+void iniciaEjecucion(FILE *, int *);
+void setParteBaja(int *, int);
+void setParteAlta(int *, int);
 
 //Termina .h
 
@@ -105,25 +108,31 @@ int main(/*int argc, char *argv[]*/)
     flagB = 1;
     if ((arch = fopen("5.bin", "rb")) == NULL)
         return 1;
-    creadicc(vecMnemo);
-    creaReg(vecReg);
-    if (!flagD)
-        while (fread(&RAM[i], sizeof(int), 1, arch) == 1)
-            i++;
-    else
+
+    //Encabezado
+    iniciaEjecucion(arch, &i);
+    if (i == 5)
     {
-        printf("Codigo:\n");
-        while (fread(&RAM[i], sizeof(int), 1, arch) == 1)
+        creadicc(vecMnemo);
+        creaReg(vecReg);
+        if (!flagD)
+            while (fread(&RAM[i], sizeof(int), 1, arch) == 1)
+                i++;
+        else
         {
-            dissasembler(RAM[i], i);
-            i++;
+            printf("Codigo:\n");
+            while (fread(&RAM[i], sizeof(int), 1, arch) == 1)
+            {
+                dissasembler(RAM[i], i);
+                i++;
+            }
         }
     }
-
-    REG[0] = i; //DS apunta a la ultima linea de binario a interpretar
+    //Si hubo algun problema con el encabezado no se ejecuta el programa
+    else
+        return 1;
 
     REG[5] = 0; //IP
-
     if (flagD)
     {
         //mostramos por primera vez
@@ -858,4 +867,83 @@ void proxinstruccion()
     decInstruccion(instruccion, &cantOperandos, &mnemo);
     traduceOperandos(instruccion, cantOperandos, &voA, &voB);
     vecFunciones[mnemo](voA, voB);
+}
+
+void iniciaEjecucion(FILE *arch, int *i)
+{
+    int vec[5];
+    //Si la primer linea guarda el valor mv21
+    if (fread(&vec[0], sizeof(int), 1, arch) == 1 && vec[0] == 0x4D563231)
+    {
+        //Cargamos el tamaño de los cuatro registros
+        *i += 1;
+        //Cuando sale de este while *i==5 pero no leyo la instruccion 5
+        while (*i <= 4 && fread(&vec[*i], sizeof(int), 1, arch) == 1)
+        {
+            if (vec[*i] >= 0 && vec[*i] <= 0xFFFF)
+                *i += 1;
+            else
+                *i = 6; //Valor cualquiera para que salga del while (aunque distinto de 5)
+        }
+        if (*i == 5)
+        {
+            if (vec[1] + vec[2] + vec[3] <= (8192 - vec[4]))
+            {
+                //Code Segment CS
+                setParteAlta(&REG[3], vec[4]);
+                setParteBaja(&REG[3], 0);
+                //Data Segment DS
+                setParteAlta(&REG[0], vec[1]);
+                setParteBaja(&REG[0], vec[4]); // No le sumo 1 porque el primero arranca en 0
+                //Extra Segment ES
+                setParteAlta(&REG[2], vec[3]);
+                setParteBaja(&REG[2], vec[4] + vec[1]); //En la posicion que indique la suma de los tamaños anteriores
+                //Stack Segment SS
+                setParteAlta(&REG[1], vec[2]);
+                setParteBaja(&REG[1], vec[4] + vec[1] + vec[3]); //En la posicion que indique la suma de los tamaños anteriores
+            }
+            else
+            {
+                printf("Mal asignado el espacio de la ram\n");
+                *i = -1;
+            }
+        }
+        else
+        {
+            printf("Mal hecho el encabezado. Pocas lineas de encabezado o mal asignado el espacio de memoria a los registros\n");
+            *i = -1;
+        }
+    }
+    else
+    {
+        printf("El formato de archivo x.bin no es correcto\n");
+        *i = -1;
+    }
+
+    // if (!flagD)
+    //     while (fread(&RAM[i], sizeof(int), 1, arch) == 1)
+    //         i++;
+    // else
+    // {
+    //     printf("Codigo:\n");
+    //     while (fread(&RAM[i], sizeof(int), 1, arch) == 1)
+    //     {
+    //         dissasembler(RAM[i], i);
+    //         i++;
+    //     }
+    // }
+}
+
+void setParteAlta(int *num, int val)
+{
+    val = (val & 0xFFFF) << 16;
+    *num = *num & 0x0000FFFF;
+    *num = *num | val;
+}
+
+void setParteBaja(int *num, int val)
+{
+    val = val & 0xFFFF;
+    *num = *num & 0xFFFF0000;
+    *num = *num | val;
 }

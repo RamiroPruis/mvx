@@ -1,1 +1,1 @@
-flus
+traduceOperandos(int

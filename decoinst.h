@@ -49,3 +49,6 @@ void dissasembler(int, int);
 void traduceIntruccion(char[], int, Tvec[], Tvec[]);
 void trunca(int *, int);
 void proxinstruccion();
+void iniciaEjecucion(FILE *, int *);
+void setParteBaja(int *, int);
+void setParteAlta(int *, int);
