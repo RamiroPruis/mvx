@@ -3,7 +3,7 @@
 #include "decoinst.h"
 #include <string.h>
 
-int RAM[4096];
+int RAM[8192];
 int REG[16];
 int voAStaticVal, voBStaticVal;
 int *voAStatic = &voAStaticVal;
@@ -51,7 +51,9 @@ int main(/*int argc, char *argv[]*/)
   if ((arch = fopen("Ej1.bin", "rb")) == NULL)
     return 1;
 
+
   //Encabezado
+  cargaFunciones();
   iniciaEjecucion(arch, &i);
   if (i == 0)
   {
@@ -74,8 +76,10 @@ int main(/*int argc, char *argv[]*/)
   else
     return 1;
 
-  REG[5] = 0; //IP
   int ds=getParteBaja(REG[0]);
+  int cs=getParteBaja(REG[3]);
+  REG[5] = getParteBaja(REG[3]); //IP INICALIZADO EN CS
+
   if (flagD)
   {
     //mostramos por primera vez
@@ -84,10 +88,10 @@ int main(/*int argc, char *argv[]*/)
   printf("\n");
   }
 
-  cargaFunciones();
-  RAM[999] = 0;
-  while (REG[5] >= 0 && REG[5] < ds)
+
+  while (REG[5]>=cs && REG[5] < ds)
   {
+    printf("%16X \n",RAM[REG[5]]);
     proxinstruccion();
   }
 

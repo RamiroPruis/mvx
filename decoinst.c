@@ -236,7 +236,6 @@ void cargaFunciones()
   vecFunciones[26] = CALL;
   vecFunciones[27] = RET;
   vecFunciones[28] = STOP;
-
 }
 
 void cambiaCC(int val)
