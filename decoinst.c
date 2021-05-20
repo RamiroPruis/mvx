@@ -184,8 +184,6 @@ void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
 
 void decInstruccion(int instruccion, int *cantOperando, int *codigo)
 {
-  int que = (instruccion >> 24) & 0xFF;
-
   if (((instruccion >> 24) & 0xFF) == 0xFF)
   {
     //codigo 0 op
@@ -233,7 +231,12 @@ void cargaFunciones()
   vecFunciones[21] = LDH;
   vecFunciones[22] = RND;
   vecFunciones[23] = NOT;
-  vecFunciones[24] = STOP;
+  vecFunciones[24] = PUSH;
+  vecFunciones[25] = POP;
+  vecFunciones[26] = CALL;
+  vecFunciones[27] = RET;
+  vecFunciones[28] = STOP;
+
 }
 
 void cambiaCC(int val)
