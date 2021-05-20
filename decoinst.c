@@ -118,11 +118,11 @@ void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
       *voA = voAStatic;
     }
     else if (toA == 0x01) //DE REGISTRO
-      *voA = &REG[voAux];
-    else if (toA == 0x10) //DIRECTO
-      *voA = &RAM[(voAux + REG[0])];
-    else{ //OP INDIRECTO
-      *voA=  devuelveIndirecto(voAux);
+            *voA = &REG[voAux];
+         else if (toA == 0x10) //DIRECTO
+                *voA = &RAM[getPosicionAbsoluta(voAux)];
+              else{ //OP INDIRECTO
+                *voA=  &RAM[devuelveIndirecto(voAux)];
     }
 
     //      B
@@ -132,11 +132,11 @@ void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
       *voB = voBStatic;
     }
     else if (toB == 0x01)
-      *voB = &REG[voBux];
-    else if (toB == 0x10)
-      *voB = &RAM[(voBux + REG[0])];
-    else //INDIRECTO
-
+            *voB = &REG[voBux];
+        else if (toB == 0x10)
+                *voB = &RAM[getPosicionAbsoluta(voBux)];
+            else //INDIRECTO
+                *voB = &RAM[devuelveIndirecto(voBux)];
   }
   else if (cantOperandos == 1)
   {
@@ -149,10 +149,11 @@ void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
       *voA = voAStatic;
     }
     else if (toA == 0x01)
-      *voA = &REG[voAux];
-
-    else
-      *voA = &RAM[(voAux + REG[0])];
+            *voA = &REG[voAux];
+         else if (toA == 0x10)
+                    *voA = &RAM[getPosicionAbsoluta(voAux)];
+              else
+                    *voA = &RAM[devuelveIndirecto(voAux)];
   }
 }
 
@@ -629,6 +630,7 @@ void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[])
     if (((inst >> 28) & 0xF) == 0xF)
     { // 1 operando
       i = 12;
+      j=0;
       while (cod[i].hex != ((inst >> 24) & 0xFF))
         i++;
       strcpy(cad, cod[i].mnemo);
@@ -641,20 +643,23 @@ void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[])
       }
       else if (((inst >> 22) & 0x003) == 0x001)
           { // operando de registro
-            j = 0;
-            while (reg[j].hex != (inst & 0x000FFFFF))
-              j++;
+            BuscaRegistro(inst&0x0000FFFF,&j,reg);
             sprintf(op1, " %s", reg[j].mnemo);
             strcat(cad, op1);
           }
           else if (((inst >> 22) & 0x003) == 0x002)
               { // operando directo
-                sprintf(op1, " [%d]", (inst & 0x000FFFFF));
+                sprintf(op1, " [%d]", (inst & 0x0000FFFF));
                 strcat(cad, op1);
               }
               else {//INDIRECTO
                    truncado = (inst & 0x00000FF0)>>4;
                    trunca(&truncado, 8);
+                   BuscaRegistro(inst & 0x0000000F,&j,reg);
+                   if (truncado>0)
+                      sprintf(op1,"[%s + %d]", reg[j].mnemo, truncado);
+                   else
+                      sprintf(op1,"[%s - %d]", reg[j].mnemo, (unsigned int) truncado);
               }
     }
     else
@@ -673,21 +678,27 @@ void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[])
       else if (((inst >> 26) & 0x03) == 0x01)
           { // operando 1 de registro
             j = 0;
-            while (reg[j].hex != ((inst >> 12) & 0x00FFF))
-              j++;
+            BuscaRegistro((inst >> 12) & 0x00FFF,&j,reg);
             sprintf(op1, " %s,", reg[j].mnemo);
             strcat(cad, op1);
           }
           else if (((inst >> 26) & 0x03) == 0x02)
               { // operando 1 directo
-                sprintf(op1, " [%d],", ((inst >> 12) & 0x00FFF));
+                sprintf(op1, " [%d],", ((inst >> 12) & 0x00FFF000));
                 strcat(cad, op1);
               }
               else{ //OPERANDO 1 INDIRECTO
-
+                   truncado = (inst & 0x00FF0000)>>16;
+                   trunca(&truncado, 8);
+                   BuscaRegistro((inst & 0x0000F000)>>12,&j,reg);
+                   if (truncado>0)
+                      sprintf(op1,"[%s + %d]", reg[j].mnemo, truncado);
+                   else
+                      sprintf(op1,"[%s - %d]", reg[j].mnemo, (unsigned int) truncado);
               }
       truncado = inst & 0x00000FFF;
       trunca(&truncado, 12);
+      j = 0;
       if (((inst >> 24) & 0x03) == 0x00)
       { // operando 2 inmediato
         sprintf(op1, "%d", truncado);
@@ -695,9 +706,7 @@ void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[])
       }
           else if (((inst >> 24) & 0x03) == 0x01)
           { // operando 2 de registro
-            j = 0;
-            while (reg[j].hex != (inst & 0x00000FFF))
-              j++;
+            BuscaRegistro((inst & 0x0000000F),&j,reg);
             sprintf(op1, "%s", reg[j].mnemo);
             strcat(cad, op1);
           }
@@ -706,11 +715,26 @@ void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[])
                 sprintf(op1, "[%d]", (inst & 0x00000FFF));
                 strcat(cad, op1);
               }
-              else{
-                    //OPERANDO 2 INDIRECTO
+              else{               //OPERANDO 2 INDIRECTO
+                   truncado = (inst & 0x00000FF0)>>4;
+                   trunca(&truncado, 8);
+                   BuscaRegistro((inst & 0x0000000F),&j,reg);
+                   if (truncado>0)
+                      sprintf(op1,"[%s + %d]", reg[j].mnemo, truncado);
+                   else
+                      sprintf(op1,"[%s - %d]", reg[j].mnemo, (unsigned int) truncado);
+
               }
     }
   }
+}
+
+void BuscaRegistro(int numreg,int *j, Tvec reg[]){
+    *j = 0;
+    while (*j<15 && reg[*j].hex != numreg)
+        (*j)++;
+    if (reg[*j].hex!=numreg)
+        (*j)=-1;
 }
 
 void trunca(int *ValorOperando, int bitsmax)
@@ -821,25 +845,27 @@ void iniciaEjecucion(FILE *arch, int *i)
 }
 
 int devuelveIndirecto(int valor){
-   short int highV = getParteAlta(valor);
-   short int lowV = getParteBaja(valor);
-   int ind;
-
-
-
+   short int offset= getParteAlta(valor);
+   short int codReg= getParteBaja(valor);
+   codReg+=offset;
+   return getPosicionAbsoluta(codReg);
 }
 
 //PARA REGISTROS
 int getPosicionAbsoluta(int valor){
-   short int highV = getParteAlta(valor);
-   short int lowV = getParteBaja(valor);
-   short int pos;
+   int highV = getParteAlta(valor);
+   int lowV = getParteBaja(valor);
+   int pos;
    pos=getParteBaja(REG[highV]) + lowV;
-   if (pos>getParteBaja(REG[highV]) && pos<=getParteAlta(REG[highV]))
-//retorno pos
-    else
-        //SEGMENTATION FAULT
+   if (pos>getParteBaja(REG[highV]) && lowV<=getParteAlta(REG[highV]))
+        return pos;
+   else{
+        printf("Segmentation Fault. Invalid memory reference. \n");
+        exit(1);
+   }
+
 }
+
 
 
 int getParteAlta(int valor){
