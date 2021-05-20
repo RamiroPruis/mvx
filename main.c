@@ -48,7 +48,7 @@ int main(/*int argc, char *argv[]*/)
   //       }
   flagD = 1;
   flagB = 1;
-  if ((arch = fopen("5.bin", "rb")) == NULL)
+  if ((arch = fopen("Ej1.bin", "rb")) == NULL)
     return 1;
 
   //Encabezado
@@ -75,17 +75,18 @@ int main(/*int argc, char *argv[]*/)
     return 1;
 
   REG[5] = 0; //IP
+  int ds=getParteBaja(REG[0]);
   if (flagD)
   {
     //mostramos por primera vez
-    for (int i = 0; i < REG[0]; i++)
+    for (int i = 0; i < ds; i++)
       printf("%s\n", DISASEMBLER[i].cadena);
-    printf("\n");
+  printf("\n");
   }
 
   cargaFunciones();
   RAM[999] = 0;
-  while (REG[5] >= 0 && REG[5] < REG[0])
+  while (REG[5] >= 0 && REG[5] < ds)
   {
     proxinstruccion();
   }
