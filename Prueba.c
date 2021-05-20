@@ -41,6 +41,10 @@ void LDL(int *, int *);
 void LDH(int *, int *);
 void RND(int *, int *);
 void SYS(int *, int *);
+void PUSH(int *, int *);
+void POP(int *, int *);
+void CALL(int *, int *);
+void RET(int *, int *);
 
 void creadicc(Tvec[]);
 void creaReg(Tvec[]);
@@ -71,7 +75,7 @@ int flagB = 0;
 int flagC = 0;
 int flagD = 0;
 Tvec vecReg[10];
-Tvec vecMnemo[25];
+Tvec vecMnemo[29];
 
 int main(/*int argc, char *argv[]*/)
 {
@@ -203,8 +207,16 @@ void creadicc(Tvec vec[])
     vec[22].hex = 0xFA;
     strcpy(vec[23].mnemo, "NOT");
     vec[23].hex = 0xFB;
-    strcpy(vec[24].mnemo, "STOP");
-    vec[24].hex = 0xFF1;
+    strcpy(vec[24].mnemo, "PUSH");
+    vec[24].hex = 0xFC;
+    strcpy(vec[25].mnemo, "POP");
+    vec[25].hex = 0xFD;
+    strcpy(vec[26].mnemo, "CALL");
+    vec[26].hex = 0xFE;
+    strcpy(vec[27].mnemo, "RET");
+    vec[27].hex = 0xFF0;
+    strcpy(vec[28].mnemo, "STOP");
+    vec[28].hex = 0xFF1;
 }
 
 void creaReg(Tvec registros[])
@@ -299,7 +311,7 @@ void decInstruccion(int instruccion, int *cantOperando, int *codigo)
         //codigo 0 op
         *cantOperando = 0;
         *codigo = (instruccion >> 20) & 0xFFF;
-        *codigo = *codigo - 4057; //Para el vector Funciones
+        *codigo = *codigo - 4053; //Para el vector Funciones
     }
     else if (((instruccion >> 28) & 0xF) == 0xF)
     {
@@ -512,6 +524,48 @@ void LDH(int *valA, int *valB)
 void RND(int *valA, int *valB)
 {
     *valA = rand() % *valB;
+}
+
+void PUSH(int *valA, int *valB)
+{
+    //Si no estamos en la ultima posicion del SS
+    if (getParteBaja(REG[6]) > 0)
+    {
+        setParteBaja(&REG[6], getParteBaja(REG[6]) - 1); //Decrementamos el SP (solo la direccion, no tocamos el segmento)
+        RAM[getPosicionAbsoluta(REG[6])] = *valA;
+    }
+    //Caso de OverFlow
+    else
+    {
+        printf("OverFlow en la pila\n");
+        exit(1);
+    }
+}
+
+void POP(int *valA, int *valB)
+{
+    //Si la pila no esta vacia podemos sacar
+    if (getParteBaja(REG[6]) < getParteAlta(REG[1]))
+    {
+        *valA = RAM[getPosicionAbsoluta(REG[6])];
+        setParteBaja(&REG[6], getParteBaja(REG[6]) + 1); //Aumentamos el SP (solo la direccion, no tocamos el segmento)
+    }
+    else
+    {
+        printf("UnderFlow en la pila\n");
+        exit(1);
+    }
+}
+
+void CALL(int *valA, int *valB)
+{
+    PUSH(&REG[5], &REG[5]); //Pusheamos la direccion de memoria de la siguiente instruccion que se iba a ejecutar, ip siempre apunta a la siguiente instruccion cuando se esta ejecutando una
+    REG[5] = *valA;
+}
+
+void RET(int *valA, int *valB)
+{
+    POP(&REG[5], &REG[5]);
 }
 
 void SYS(int *valA, int *valB)
