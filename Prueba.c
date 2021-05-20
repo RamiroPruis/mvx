@@ -564,7 +564,7 @@ void LDH(int *valA, int *valB)
 
 void RND(int *valA, int *valB)
 {
-    *valA = rand() % *valB;
+    REG[9] = rand() % *valA;
 }
 
 void PUSH(int *valA, int *valB)
@@ -1118,7 +1118,7 @@ int getPosicionAbsoluta(int valor)
     int lowV = getParteBaja(valor);
     int pos;
     pos = getParteBaja(REG[highV]) + lowV;
-    if (pos > getParteBaja(REG[highV]) && lowV <= getParteAlta(REG[highV]))
+    if (pos > getParteBaja(REG[highV]) && lowV <= getParteAlta(REG[highV]) && highV >= 0 && highV <= 3)
         return pos;
     else
     {
