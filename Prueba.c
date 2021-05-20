@@ -40,6 +40,9 @@ void AND(int *, int *);
 void LDL(int *, int *);
 void LDH(int *, int *);
 void RND(int *, int *);
+void SLEN(int *, int *);
+void SMOV(int *, int *);
+void SCMP(int *, int *);
 void SYS(int *, int *);
 void PUSH(int *, int *);
 void POP(int *, int *);
@@ -115,7 +118,7 @@ int main(/*int argc, char *argv[]*/)
     //       }
     flagD = 1;
     flagB = 1;
-    if ((arch = fopen("Ej1.bin", "rb")) == NULL)
+    if ((arch = fopen("Ejercicios assembler\\Ej1 (1).bin", "rb")) == NULL)
         return 1;
 
     //Encabezado
@@ -156,7 +159,7 @@ int main(/*int argc, char *argv[]*/)
 
     while (REG[5] >= cs && REG[5] < ds)
     {
-        printf("%16X \n", RAM[REG[5]]);
+        printf("%s\n", DISASEMBLER[REG[5]].cadena);
         proxinstruccion();
     }
 
@@ -342,14 +345,14 @@ void decInstruccion(int instruccion, int *cantOperando, int *codigo)
         //codigo 0 op
         *cantOperando = 0;
         *codigo = (instruccion >> 20) & 0xFFF;
-        *codigo = *codigo - 4053; //Para el vector Funciones
+        *codigo = *codigo - 4050; //Para el vector Funciones
     }
     else if (((instruccion >> 28) & 0xF) == 0xF)
     {
         //codigo 1op
         *cantOperando = 1;
         *codigo = (instruccion >> 24) & 0xFF;
-        *codigo = *codigo - 228;
+        *codigo = *codigo - 225;
     }
     else
     {
@@ -372,23 +375,26 @@ void cargaFunciones()
     vecFunciones[9] = AND;
     vecFunciones[10] = OR;
     vecFunciones[11] = XOR;
-    vecFunciones[12] = SYS;
-    vecFunciones[13] = JMP;
-    vecFunciones[14] = JZ;
-    vecFunciones[15] = JP;
-    vecFunciones[16] = JN;
-    vecFunciones[17] = JNZ;
-    vecFunciones[18] = JNP;
-    vecFunciones[19] = JNN;
-    vecFunciones[20] = LDL;
-    vecFunciones[21] = LDH;
-    vecFunciones[22] = RND;
-    vecFunciones[23] = NOT;
-    vecFunciones[24] = PUSH;
-    vecFunciones[25] = POP;
-    vecFunciones[26] = CALL;
-    vecFunciones[27] = RET;
-    vecFunciones[28] = STOP;
+    vecFunciones[12] = SLEN;
+    vecFunciones[13] = SMOV;
+    vecFunciones[14] = SCMP;
+    vecFunciones[15] = SYS;
+    vecFunciones[16] = JMP;
+    vecFunciones[17] = JZ;
+    vecFunciones[18] = JP;
+    vecFunciones[19] = JN;
+    vecFunciones[20] = JNZ;
+    vecFunciones[21] = JNP;
+    vecFunciones[22] = JNN;
+    vecFunciones[23] = LDL;
+    vecFunciones[24] = LDH;
+    vecFunciones[25] = RND;
+    vecFunciones[26] = NOT;
+    vecFunciones[27] = PUSH;
+    vecFunciones[28] = POP;
+    vecFunciones[29] = CALL;
+    vecFunciones[30] = RET;
+    vecFunciones[31] = STOP;
 }
 
 void cambiaCC(int val)
@@ -539,7 +545,7 @@ void NOT(int *valA, int *valB)
 void STOP(int *valA, int *valB)
 {
 
-    REG[5] = REG[0];
+    REG[5] = getParteBaja(REG[0]);
 }
 
 void LDL(int *valA, int *valB)
@@ -601,6 +607,44 @@ void CALL(int *valA, int *valB)
 void RET(int *valA, int *valB)
 {
     POP(&REG[5], &REG[5]);
+}
+
+void SLEN(int *valA, int *valB)
+{
+    int largo = 0, pos;
+    pos = *valB; //posicion del primer char
+    while (RAM[pos] != '\0')
+    {
+        largo++;
+        pos++;
+    }
+    largo++; //incluir \0
+    *valA = largo;
+}
+
+void SMOV(int *valA, int *valB)
+{
+    int posA = *valA, posB = *valB;
+
+    while (RAM[posB] != '\0')
+    {
+        RAM[posA] = RAM[posB];
+        posA++;
+        posB++;
+    }
+    RAM[posA] = '\0';
+}
+
+void SCMP(int *valA, int *valB)
+{
+    int posA = *valA, posB = *valB;
+
+    do
+    {
+        REG[8] = RAM[posA] - RAM[posB];
+        posA++;
+        posB++;
+    } while (RAM[posA] != '\0' && RAM[posB] != '\0' && REG[8] != 0);
 }
 
 void SYS(int *valA, int *valB)
@@ -1064,7 +1108,7 @@ int devuelveIndirecto(int valor)
 {
     short int offset = (valor >> 4) & 0xFF;
     short int codReg = valor & 0xF;
-    return getPosicionAbsoluta(codReg) + offset;
+    return getPosicionAbsoluta(REG[codReg] + offset);
 }
 
 //PARA REGISTROS

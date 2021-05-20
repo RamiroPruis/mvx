@@ -390,7 +390,7 @@ void NOT(int *valA, int *valB)
 void STOP(int *valA, int *valB)
 {
 
-  REG[5] = REG[0];
+  REG[5] = getParteBaja(REG[0]);
 }
 
 void LDL(int *valA, int *valB)
@@ -456,9 +456,10 @@ void RET(int *valA, int *valB)
 
 void SLEN(int *valA, int *valB)
 {
-  int largo=0,pos;
+  int largo = 0, pos;
   pos = *valB; //posicion del primer char
-  while (RAM[pos] != '\0'){
+  while (RAM[pos] != '\0')
+  {
     largo++;
     pos++;
   }
@@ -468,9 +469,10 @@ void SLEN(int *valA, int *valB)
 
 void SMOV(int *valA, int *valB)
 {
-  int posA=*valA, posB=*valB;
+  int posA = *valA, posB = *valB;
 
-  while(RAM[posB]!= '\0'){
+  while (RAM[posB] != '\0')
+  {
     RAM[posA] = RAM[posB];
     posA++;
     posB++;
@@ -480,14 +482,14 @@ void SMOV(int *valA, int *valB)
 
 void SCMP(int *valA, int *valB)
 {
-  int posA=*valA, posB=*valB;
+  int posA = *valA, posB = *valB;
 
-  do{
+  do
+  {
     REG[8] = RAM[posA] - RAM[posB];
     posA++;
     posB++;
-  }while(RAM[posA]!='\0' && RAM[posB]!='\0' && REG[8]!=0);
-
+  } while (RAM[posA] != '\0' && RAM[posB] != '\0' && REG[8] != 0);
 }
 
 void SYS(int *valA, int *valB)
@@ -951,7 +953,7 @@ int devuelveIndirecto(int valor)
 {
   short int offset = (valor >> 4) & 0xFF;
   short int codReg = valor & 0xF;
-  return getPosicionAbsoluta(REG[codReg]+offset);
+  return getPosicionAbsoluta(REG[codReg] + offset);
 }
 
 //PARA REGISTROS
