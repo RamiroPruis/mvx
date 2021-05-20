@@ -46,7 +46,7 @@ void RET(int *, int *);
 
 void creadicc(Tvec[]);
 void creaReg(Tvec[]);
-void (*vecFunciones[25])(int *, int *);
+void (*vecFunciones[32])(int *, int *);
 void cargaFunciones();
 void pasoApaso();
 void desarmaPalabra(char[], char[], char[]);

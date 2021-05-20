@@ -206,6 +206,7 @@ void decInstruccion(int instruccion, int *cantOperando, int *codigo)
     *codigo = (instruccion >> 28) & 0xF;
   }
 }
+
 void cargaFunciones()
 {
   vecFunciones[0] = MOV;
@@ -580,20 +581,20 @@ void SYS(int *valA, int *valB)
           if (i == REG[5])
           {
             printf(">");
-            printf("%s\n", DISASEMBLER[i]);
+            printf("%s\n", DISASEMBLER[i].cadena);
           }
           else
-            printf(" %s\n", DISASEMBLER[i]);
+            printf(" %s\n", DISASEMBLER[i].cadena);
 
       else
         for (int i = 0; i < 10; i++)
           if (i == REG[5])
           {
             printf(">");
-            printf("%s\n", DISASEMBLER[i]);
+            printf("%s\n", DISASEMBLER[i].cadena);
           }
           else
-            printf(" %s\n", DISASEMBLER[i]);
+            printf(" %s\n", DISASEMBLER[i].cadena);
 
       //proxinstruccion();
       sprintf(cad, "Registros:\n");
@@ -797,9 +798,9 @@ void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[])
         trunca(&truncado, 8);
         BuscaRegistro((inst & 0x0000F000) >> 12, &j, reg);
         if (truncado > 0)
-          sprintf(op1, "[%s + %d]", reg[j].mnemo, truncado);
+          sprintf(op1, "[%s+%d]", reg[j].mnemo, truncado);
         else
-          sprintf(op1, "[%s - %d]", reg[j].mnemo, ~truncado);
+          sprintf(op1, "[%s-%d]", reg[j].mnemo, ~truncado);
       }
       strcat(cad, op1);
       truncado = inst & 0x00000FFF;
@@ -845,18 +846,20 @@ void trunca(int *ValorOperando, int bitsmax)
   switch (bitsmax)
   {
   case 8:
-    if (*ValorOperando > 127 || *ValorOperando < -128)
+    if (*ValorOperando > 127 || *ValorOperando < -128){
       if ((*ValorOperando) >> 7)
         *ValorOperando |= 0xFFFFFF00;
       else
         *ValorOperando &= 0x000000FF;
+    }
     break;
   case 12:
-    if ((*ValorOperando > 2047 || *ValorOperando < -2048))
+    if ((*ValorOperando > 2047 || *ValorOperando < -2048)){
       if ((*ValorOperando & 0xFFF) >> 11) //Bit mas significativo de los 12bits es un 1 --> numero negativo
         *ValorOperando |= 0xFFFFF000;
       else
         *ValorOperando = (*ValorOperando & 0x00000FFF);
+    }
     break;
   case 16:
     if ((*ValorOperando >= 32767 || *ValorOperando <= -32768) && bitsmax == 16)
@@ -880,6 +883,7 @@ void proxinstruccion()
   REG[5]++;
   decInstruccion(instruccion, &cantOperandos, &mnemo);
   traduceOperandos(instruccion, cantOperandos, &voA, &voB);
+  fflush(stdin);
   vecFunciones[mnemo](voA, voB);
 }
 

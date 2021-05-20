@@ -31,15 +31,15 @@
 	"decoinst.h"
 	<string.h>
 
-1621528263 source:c:\users\maria\desktop\facu\5to c\arquitectura de computadoras\mv\mvx\decoinst.c
+1621543847 source:c:\users\maria\desktop\facu\5to c\arquitectura de computadoras\mv\mvx\decoinst.c
 	<stdlib.h>
 	<stdio.h>
 	<string.h>
 	"decoinst.h"
 
-1621521203 c:\users\maria\desktop\facu\5to c\arquitectura de computadoras\mv\mvx\decoinst.h
+1621543778 c:\users\maria\desktop\facu\5to c\arquitectura de computadoras\mv\mvx\decoinst.h
 
-1621528385 source:c:\users\maria\desktop\facu\5to c\arquitectura de computadoras\mv\mvx\main.c
+1621543855 source:c:\users\maria\desktop\facu\5to c\arquitectura de computadoras\mv\mvx\main.c
 	<stdio.h>
 	<stdlib.h>
 	"decoinst.h"
