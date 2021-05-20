@@ -51,7 +51,7 @@ void muestraValor(char[]);
 void pasoApaso(char[]);
 void dissasembler(int, int);
 void traduceIntruccion(char[], int, Tvec[], Tvec[]);
-void BuscaRegistro(int,int *,Tvec[]);
+void BuscaRegistro(int, int *, Tvec[]);
 void trunca(int *, int);
 void proxinstruccion();
 void iniciaEjecucion(FILE *, int *);

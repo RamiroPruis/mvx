@@ -3,7 +3,7 @@
 #include <string.h>
 #include "decoinst.h"
 
-extern int RAM[4096];
+extern int RAM[8192];
 extern int REG[16];
 extern int *voAStatic;
 extern int *voBStatic;
@@ -11,115 +11,115 @@ extern int flagB;
 extern int flagC;
 extern int flagD;
 extern Tdisasembler DISASEMBLER[1000];
-extern Tvec vecReg[10];
-extern Tvec vecMnemo[25];
+extern Tvec vecReg[16];
+extern Tvec vecMnemo[32];
 
 void creadicc(Tvec vec[])
 {
-    strcpy(vec[0].mnemo, "MOV");
-    vec[0].hex = 0x00;
-    strcpy(vec[1].mnemo, "ADD");
-    vec[1].hex = 0x01;
-    strcpy(vec[2].mnemo, "SUB");
-    vec[2].hex = 0x02;
-    strcpy(vec[3].mnemo, "SWAP");
-    vec[3].hex = 0x03;
-    strcpy(vec[4].mnemo, "MUL");
-    vec[4].hex = 0x04;
-    strcpy(vec[5].mnemo, "DIV");
-    vec[5].hex = 0x05;
-    strcpy(vec[6].mnemo, "CMP");
-    vec[6].hex = 0x06;
-    strcpy(vec[7].mnemo, "SHL");
-    vec[7].hex = 0x07;
-    strcpy(vec[8].mnemo, "SHR");
-    vec[8].hex = 0x08;
-    strcpy(vec[9].mnemo, "AND");
-    vec[9].hex = 0x09;
-    strcpy(vec[10].mnemo, "OR");
-    vec[10].hex = 0x0A;
-    strcpy(vec[11].mnemo, "XOR");
-    vec[11].hex = 0x0B;
-    strcpy(vec[12].mnemo, "SYS");
-    vec[12].hex = 0xF0;
-    strcpy(vec[13].mnemo, "JMP");
-    vec[13].hex = 0xF1;
-    strcpy(vec[14].mnemo, "JZ");
-    vec[14].hex = 0xF2;
-    strcpy(vec[15].mnemo, "JP");
-    vec[15].hex = 0xF3;
-    strcpy(vec[16].mnemo, "JN");
-    vec[16].hex = 0xF4;
-    strcpy(vec[17].mnemo, "JNZ");
-    vec[17].hex = 0xF5;
-    strcpy(vec[18].mnemo, "JNP");
-    vec[18].hex = 0xF6;
-    strcpy(vec[19].mnemo, "JNN");
-    vec[19].hex = 0xF7;
-    strcpy(vec[20].mnemo, "LDL");
-    vec[20].hex = 0xF8;
-    strcpy(vec[21].mnemo, "LDH");
-    vec[21].hex = 0xF9;
-    strcpy(vec[22].mnemo, "RND");
-    vec[22].hex = 0xFA;
-    strcpy(vec[23].mnemo, "NOT");
-    vec[23].hex = 0xFB;
-    strcpy(vec[24].mnemo, "STOP");
-    vec[24].hex = 0xFF1;
-    strcpy(vec[25].mnemo, "SLEN");
-    vec[25].hex = 0x0C;
-    strcpy(vec[26].mnemo, "SMOV");
-    vec[26].hex = 0x0D;
-    strcpy(vec[27].mnemo, "SCMP");
-    vec[27].hex = 0x0E;
-    strcpy(vec[28].mnemo, "PUSH");
-    vec[28].hex = 0xFC;
-    strcpy(vec[29].mnemo, "POP");
-    vec[29].hex = 0xFD;
-    strcpy(vec[30].mnemo, "CALL");
-    vec[30].hex = 0xFE;
-    strcpy(vec[31].mnemo, "RET");
-    vec[31].hex = 0xFF0;
+  strcpy(vec[0].mnemo, "MOV");
+  vec[0].hex = 0x00;
+  strcpy(vec[1].mnemo, "ADD");
+  vec[1].hex = 0x01;
+  strcpy(vec[2].mnemo, "SUB");
+  vec[2].hex = 0x02;
+  strcpy(vec[3].mnemo, "SWAP");
+  vec[3].hex = 0x03;
+  strcpy(vec[4].mnemo, "MUL");
+  vec[4].hex = 0x04;
+  strcpy(vec[5].mnemo, "DIV");
+  vec[5].hex = 0x05;
+  strcpy(vec[6].mnemo, "CMP");
+  vec[6].hex = 0x06;
+  strcpy(vec[7].mnemo, "SHL");
+  vec[7].hex = 0x07;
+  strcpy(vec[8].mnemo, "SHR");
+  vec[8].hex = 0x08;
+  strcpy(vec[9].mnemo, "AND");
+  vec[9].hex = 0x09;
+  strcpy(vec[10].mnemo, "OR");
+  vec[10].hex = 0x0A;
+  strcpy(vec[11].mnemo, "XOR");
+  vec[11].hex = 0x0B;
+  strcpy(vec[12].mnemo, "SYS");
+  vec[12].hex = 0xF0;
+  strcpy(vec[13].mnemo, "JMP");
+  vec[13].hex = 0xF1;
+  strcpy(vec[14].mnemo, "JZ");
+  vec[14].hex = 0xF2;
+  strcpy(vec[15].mnemo, "JP");
+  vec[15].hex = 0xF3;
+  strcpy(vec[16].mnemo, "JN");
+  vec[16].hex = 0xF4;
+  strcpy(vec[17].mnemo, "JNZ");
+  vec[17].hex = 0xF5;
+  strcpy(vec[18].mnemo, "JNP");
+  vec[18].hex = 0xF6;
+  strcpy(vec[19].mnemo, "JNN");
+  vec[19].hex = 0xF7;
+  strcpy(vec[20].mnemo, "LDL");
+  vec[20].hex = 0xF8;
+  strcpy(vec[21].mnemo, "LDH");
+  vec[21].hex = 0xF9;
+  strcpy(vec[22].mnemo, "RND");
+  vec[22].hex = 0xFA;
+  strcpy(vec[23].mnemo, "NOT");
+  vec[23].hex = 0xFB;
+  strcpy(vec[24].mnemo, "STOP");
+  vec[24].hex = 0xFF1;
+  strcpy(vec[25].mnemo, "SLEN");
+  vec[25].hex = 0x0C;
+  strcpy(vec[26].mnemo, "SMOV");
+  vec[26].hex = 0x0D;
+  strcpy(vec[27].mnemo, "SCMP");
+  vec[27].hex = 0x0E;
+  strcpy(vec[28].mnemo, "PUSH");
+  vec[28].hex = 0xFC;
+  strcpy(vec[29].mnemo, "POP");
+  vec[29].hex = 0xFD;
+  strcpy(vec[30].mnemo, "CALL");
+  vec[30].hex = 0xFE;
+  strcpy(vec[31].mnemo, "RET");
+  vec[31].hex = 0xFF0;
 }
 
 void creaReg(Tvec registros[])
 {
-    //Inicializamos en null
-    for (int i = 0; i < 16; i++)
-        strcpy(registros[i].mnemo, "\0");
+  //Inicializamos en null
+  for (int i = 0; i < 16; i++)
+    strcpy(registros[i].mnemo, "\0");
 
-    strcpy(registros[0].mnemo, "DS");
-    registros[0].hex = 0;
-    strcpy(registros[1].mnemo, "SS");
-    registros[1].hex = 1;
-    strcpy(registros[2].mnemo, "ES");
-    registros[2].hex = 2;
-    strcpy(registros[3].mnemo, "CS");
-    registros[3].hex = 3;
-    strcpy(registros[4].mnemo, "HP");
-    registros[4].hex = 4;
-    strcpy(registros[5].mnemo, "IP");
-    registros[5].hex = 5;
-    strcpy(registros[6].mnemo, "SP");
-    registros[6].hex = 6;
-    strcpy(registros[7].mnemo, "BP");
-    registros[7].hex = 7;
-    strcpy(registros[8].mnemo, "CC");
-    registros[8].hex = 8;
-    strcpy(registros[9].mnemo, "AC");
-    registros[9].hex = 9;
-    strcpy(registros[10].mnemo, "AX");
-    registros[10].hex = 10;
-    strcpy(registros[11].mnemo, "BX");
-    registros[11].hex = 11;
-    strcpy(registros[12].mnemo, "CX");
-    registros[12].hex = 12;
-    strcpy(registros[13].mnemo, "DX");
-    registros[13].hex = 13;
-    strcpy(registros[14].mnemo, "EX");
-    registros[14].hex = 14;
-    strcpy(registros[15].mnemo, "FX");
-    registros[15].hex = 15;
+  strcpy(registros[0].mnemo, "DS");
+  registros[0].hex = 0;
+  strcpy(registros[1].mnemo, "SS");
+  registros[1].hex = 1;
+  strcpy(registros[2].mnemo, "ES");
+  registros[2].hex = 2;
+  strcpy(registros[3].mnemo, "CS");
+  registros[3].hex = 3;
+  strcpy(registros[4].mnemo, "HP");
+  registros[4].hex = 4;
+  strcpy(registros[5].mnemo, "IP");
+  registros[5].hex = 5;
+  strcpy(registros[6].mnemo, "SP");
+  registros[6].hex = 6;
+  strcpy(registros[7].mnemo, "BP");
+  registros[7].hex = 7;
+  strcpy(registros[8].mnemo, "CC");
+  registros[8].hex = 8;
+  strcpy(registros[9].mnemo, "AC");
+  registros[9].hex = 9;
+  strcpy(registros[10].mnemo, "AX");
+  registros[10].hex = 10;
+  strcpy(registros[11].mnemo, "BX");
+  registros[11].hex = 11;
+  strcpy(registros[12].mnemo, "CX");
+  registros[12].hex = 12;
+  strcpy(registros[13].mnemo, "DX");
+  registros[13].hex = 13;
+  strcpy(registros[14].mnemo, "EX");
+  registros[14].hex = 14;
+  strcpy(registros[15].mnemo, "FX");
+  registros[15].hex = 15;
 }
 void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
 {
@@ -137,17 +137,18 @@ void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
     voBux = instruccion & 0x00000FFF;
     trunca(&voBux, 12);
     //       A
-    if (toA == 0x00)  //INMEDIATO
+    if (toA == 0x00) //INMEDIATO
     {
       *voAStatic = voAux;
       *voA = voAStatic;
     }
     else if (toA == 0x01) //DE REGISTRO
-            *voA = &REG[voAux];
-         else if (toA == 0x10) //DIRECTO
-                *voA = &RAM[getPosicionAbsoluta(voAux)];
-              else{ //OP INDIRECTO
-                *voA=  &RAM[devuelveIndirecto(voAux)];
+      *voA = &REG[voAux];
+    else if (toA == 0x10) //DIRECTO
+      *voA = &RAM[getPosicionAbsoluta(voAux)];
+    else
+    { //OP INDIRECTO
+      *voA = &RAM[devuelveIndirecto(voAux)];
     }
 
     //      B
@@ -157,11 +158,11 @@ void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
       *voB = voBStatic;
     }
     else if (toB == 0x01)
-            *voB = &REG[voBux];
-        else if (toB == 0x10)
-                *voB = &RAM[getPosicionAbsoluta(voBux)];
-            else //INDIRECTO
-                *voB = &RAM[devuelveIndirecto(voBux)];
+      *voB = &REG[voBux];
+    else if (toB == 0x10)
+      *voB = &RAM[getPosicionAbsoluta(voBux)];
+    else //INDIRECTO
+      *voB = &RAM[devuelveIndirecto(voBux)];
   }
   else if (cantOperandos == 1)
   {
@@ -174,11 +175,11 @@ void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
       *voA = voAStatic;
     }
     else if (toA == 0x01)
-            *voA = &REG[voAux];
-         else if (toA == 0x10)
-                    *voA = &RAM[getPosicionAbsoluta(voAux)];
-              else
-                    *voA = &RAM[devuelveIndirecto(voAux)];
+      *voA = &REG[voAux];
+    else if (toA == 0x10)
+      *voA = &RAM[getPosicionAbsoluta(voAux)];
+    else
+      *voA = &RAM[devuelveIndirecto(voAux)];
   }
 }
 
@@ -699,7 +700,7 @@ void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[])
     if (((inst >> 28) & 0xF) == 0xF)
     { // 1 operando
       i = 12;
-      j=0;
+      j = 0;
       while (cod[i].hex != ((inst >> 24) & 0xFF))
         i++;
       strcpy(cad, cod[i].mnemo);
@@ -710,23 +711,24 @@ void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[])
         sprintf(op1, " %d", truncado);
       }
       else if (((inst >> 22) & 0x003) == 0x001)
-          { // operando de registro
-            BuscaRegistro(inst&0x0000FFFF,&j,reg);
-            sprintf(op1, " %s", reg[j].mnemo);
-          }
-          else if (((inst >> 22) & 0x003) == 0x002)
-              // operando directo
-                sprintf(op1, " [%d]", (inst & 0x0000FFFF));
-              else {//INDIRECTO
-                   truncado = (inst & 0x00000FF0)>>4;
-                   trunca(&truncado, 8);
-                   BuscaRegistro(inst & 0x0000000F,&j,reg);
-                   if (truncado>0)
-                      sprintf(op1," [%s+%d]", reg[j].mnemo, truncado);
-                   else
-                      sprintf(op1," [%s-%d]", reg[j].mnemo, ~truncado);
-              }
-        strcat(cad,op1);
+      { // operando de registro
+        BuscaRegistro(inst & 0x0000FFFF, &j, reg);
+        sprintf(op1, " %s", reg[j].mnemo);
+      }
+      else if (((inst >> 22) & 0x003) == 0x002)
+        // operando directo
+        sprintf(op1, " [%d]", (inst & 0x0000FFFF));
+      else
+      { //INDIRECTO
+        truncado = (inst & 0x00000FF0) >> 4;
+        trunca(&truncado, 8);
+        BuscaRegistro(inst & 0x0000000F, &j, reg);
+        if (truncado > 0)
+          sprintf(op1, " [%s+%d]", reg[j].mnemo, truncado);
+        else
+          sprintf(op1, " [%s-%d]", reg[j].mnemo, ~truncado);
+      }
+      strcat(cad, op1);
     }
     else
     { // 2 operandos
@@ -737,91 +739,93 @@ void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[])
       truncado = (inst >> 12) & 0x00FFF;
       trunca(&truncado, 12);
       if (((inst >> 26) & 0x03) == 0x00)
-      // operando 1 inmediato
+        // operando 1 inmediato
         sprintf(op1, " %d,", truncado);
       else if (((inst >> 26) & 0x03) == 0x01)
-          { // operando 1 de registro
-            j = 0;
-            BuscaRegistro((inst >> 12) & 0x00FFF,&j,reg);
-            sprintf(op1, " %s,", reg[j].mnemo);
-          }
-          else if (((inst >> 26) & 0x03) == 0x02)
-               // operando 1 directo
-                sprintf(op1, " [%d],", ((inst >> 12) & 0x00FFF000));
-              else{ //OPERANDO 1 INDIRECTO
-                   truncado = (inst & 0x00FF0000)>>16;
-                   trunca(&truncado, 8);
-                   BuscaRegistro((inst & 0x0000F000)>>12,&j,reg);
-                   if (truncado>0)
-                      sprintf(op1,"[%s + %d]", reg[j].mnemo, truncado);
-                   else
-                      sprintf(op1,"[%s - %d]", reg[j].mnemo, ~truncado);
-              }
-      strcat(cad,op1);
+      { // operando 1 de registro
+        j = 0;
+        BuscaRegistro((inst >> 12) & 0x00FFF, &j, reg);
+        sprintf(op1, " %s,", reg[j].mnemo);
+      }
+      else if (((inst >> 26) & 0x03) == 0x02)
+        // operando 1 directo
+        sprintf(op1, " [%d],", ((inst >> 12) & 0x00FFF000));
+      else
+      { //OPERANDO 1 INDIRECTO
+        truncado = (inst & 0x00FF0000) >> 16;
+        trunca(&truncado, 8);
+        BuscaRegistro((inst & 0x0000F000) >> 12, &j, reg);
+        if (truncado > 0)
+          sprintf(op1, "[%s + %d]", reg[j].mnemo, truncado);
+        else
+          sprintf(op1, "[%s - %d]", reg[j].mnemo, ~truncado);
+      }
+      strcat(cad, op1);
       truncado = inst & 0x00000FFF;
       trunca(&truncado, 12);
       j = 0;
       if (((inst >> 24) & 0x03) == 0x00)
-      // operando 2 inmediato
+        // operando 2 inmediato
         sprintf(op1, "%d", truncado);
       else if (((inst >> 24) & 0x03) == 0x01)
-          { // operando 2 de registro
-            BuscaRegistro((inst & 0x0000000F),&j,reg);
-            sprintf(op1, "%s", reg[j].mnemo);
-          }
-              else if (((inst >> 24) & 0x03) == 0x02)
-              // operando 2 directo
-                sprintf(op1, "[%d]", (inst & 0x00000FFF));
-              else{               //OPERANDO 2 INDIRECTO
-                   truncado = (inst & 0x00000FF0)>>4;
-                   trunca(&truncado, 8);
-                   BuscaRegistro((inst & 0x0000000F),&j,reg);
-                   if (truncado>0)
-                      sprintf(op1,"[%s+%d]", reg[j].mnemo, truncado);
-                   else
-                      sprintf(op1,"[%s-%d]", reg[j].mnemo, (unsigned int) truncado);
-              }
-        strcat(cad,op1);
-
+      { // operando 2 de registro
+        BuscaRegistro((inst & 0x0000000F), &j, reg);
+        sprintf(op1, "%s", reg[j].mnemo);
+      }
+      else if (((inst >> 24) & 0x03) == 0x02)
+        // operando 2 directo
+        sprintf(op1, "[%d]", (inst & 0x00000FFF));
+      else
+      { //OPERANDO 2 INDIRECTO
+        truncado = (inst & 0x00000FF0) >> 4;
+        trunca(&truncado, 8);
+        BuscaRegistro((inst & 0x0000000F), &j, reg);
+        if (truncado > 0)
+          sprintf(op1, "[%s+%d]", reg[j].mnemo, truncado);
+        else
+          sprintf(op1, "[%s-%d]", reg[j].mnemo, (unsigned int)truncado);
+      }
+      strcat(cad, op1);
     }
   }
 }
 
-void BuscaRegistro(int numreg,int *j, Tvec reg[]){
-    *j = 0;
-    while (*j<15 && reg[*j].hex != numreg)
-        (*j)++;
-    if (reg[*j].hex!=numreg)
-        (*j)=-1;
+void BuscaRegistro(int numreg, int *j, Tvec reg[])
+{
+  *j = 0;
+  while (*j < 15 && reg[*j].hex != numreg)
+    (*j)++;
+  if (reg[*j].hex != numreg)
+    (*j) = -1;
 }
 
 void trunca(int *ValorOperando, int bitsmax)
 {
   switch (bitsmax)
   {
-      case 8:
-          if (*ValorOperando>127 || *ValorOperando<-128)
-            if ((*ValorOperando)>>7)
-                *ValorOperando|=0xFFFFFF00;
-            else
-                *ValorOperando&=0x000000FF;
-          break;
-      case 12:
-        if ((*ValorOperando > 2047 || *ValorOperando < -2048))
-            if ((*ValorOperando & 0xFFF) >> 11) //Bit mas significativo de los 12bits es un 1 --> numero negativo
-                *ValorOperando |= 0xFFFFF000;
-            else
-                *ValorOperando = (*ValorOperando & 0x00000FFF);
-        break;
-      case 16:
-        if ((*ValorOperando >= 32767 || *ValorOperando <= -32768) && bitsmax == 16)
-        {
-            if ((*ValorOperando & 0xFFFF) >> 15)
-              *ValorOperando |= 0xFFFF0000;
-            else
-              *ValorOperando &= 0x0000FFFF;
-       }
-      break;
+  case 8:
+    if (*ValorOperando > 127 || *ValorOperando < -128)
+      if ((*ValorOperando) >> 7)
+        *ValorOperando |= 0xFFFFFF00;
+      else
+        *ValorOperando &= 0x000000FF;
+    break;
+  case 12:
+    if ((*ValorOperando > 2047 || *ValorOperando < -2048))
+      if ((*ValorOperando & 0xFFF) >> 11) //Bit mas significativo de los 12bits es un 1 --> numero negativo
+        *ValorOperando |= 0xFFFFF000;
+      else
+        *ValorOperando = (*ValorOperando & 0x00000FFF);
+    break;
+  case 16:
+    if ((*ValorOperando >= 32767 || *ValorOperando <= -32768) && bitsmax == 16)
+    {
+      if ((*ValorOperando & 0xFFFF) >> 15)
+        *ValorOperando |= 0xFFFF0000;
+      else
+        *ValorOperando &= 0x0000FFFF;
+    }
+    break;
   }
 }
 
@@ -841,10 +845,10 @@ void proxinstruccion()
 void iniciaEjecucion(FILE *arch, int *i)
 {
   int vec[5];
-  char mv[5]="\0";
+  char mv[5] = "\0";
   //Si la primer linea guarda el valor mv21
-  fread(&mv, sizeof(char)*4, 1, arch);
-  if (strcmp(mv,"MV21")==0)
+  fread(&mv, sizeof(char) * 4, 1, arch);
+  if (strcmp(mv, "MV21") == 0)
   {
     //Cargamos el tamaño de los cuatro registros
     *i += 1;
@@ -904,36 +908,37 @@ void iniciaEjecucion(FILE *arch, int *i)
   }
 }
 
-int devuelveIndirecto(int valor){
-   short int offset= getParteAlta(valor);
-   short int codReg= getParteBaja(valor);
-   codReg+=offset;
-   return getPosicionAbsoluta(codReg);
+int devuelveIndirecto(int valor)
+{
+  short int offset = (valor >> 4) & 0xFF;
+  short int codReg = valor & 0xF;
+  return getPosicionAbsoluta(codReg) + offset;
 }
 
 //PARA REGISTROS
-int getPosicionAbsoluta(int valor){
-   int highV = getParteAlta(valor);
-   int lowV = getParteBaja(valor);
-   int pos;
-   pos=getParteBaja(REG[highV]) + lowV;
-   if (pos>getParteBaja(REG[highV]) && lowV<=getParteAlta(REG[highV]))
-        return pos;
-   else{
-        printf("Segmentation Fault. Invalid memory reference. \n");
-        exit(1);
-   }
-
+int getPosicionAbsoluta(int valor)
+{
+  int highV = getParteAlta(valor);
+  int lowV = getParteBaja(valor);
+  int pos;
+  pos = getParteBaja(REG[highV]) + lowV;
+  if (pos > getParteBaja(REG[highV]) && lowV <= getParteAlta(REG[highV]))
+    return pos;
+  else
+  {
+    printf("Segmentation Fault. Invalid memory reference. \n");
+    exit(1);
+  }
 }
 
-
-
-int getParteAlta(int valor){
-    return (valor&0xFFFF0000)>>16;
+int getParteAlta(int valor)
+{
+  return (valor & 0xFFFF0000) >> 16;
 }
 
-int getParteBaja(int valor){
-    return valor&0xFFFF;
+int getParteBaja(int valor)
+{
+  return valor & 0xFFFF;
 }
 
 void setParteAlta(int *num, int val)

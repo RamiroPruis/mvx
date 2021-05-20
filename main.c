@@ -12,8 +12,8 @@ Tdisasembler DISASEMBLER[1000];
 int flagB = 0;
 int flagC = 0;
 int flagD = 0;
-Tvec vecReg[10];
-Tvec vecMnemo[25];
+Tvec vecReg[16];
+Tvec vecMnemo[32];
 
 int main(/*int argc, char *argv[]*/)
 {
@@ -51,7 +51,6 @@ int main(/*int argc, char *argv[]*/)
   if ((arch = fopen("Ej1.bin", "rb")) == NULL)
     return 1;
 
-
   //Encabezado
   cargaFunciones();
   iniciaEjecucion(arch, &i);
@@ -76,8 +75,8 @@ int main(/*int argc, char *argv[]*/)
   else
     return 1;
 
-  int ds=getParteBaja(REG[0]);
-  int cs=getParteBaja(REG[3]);
+  int ds = getParteBaja(REG[0]);
+  int cs = getParteBaja(REG[3]);
   REG[5] = getParteBaja(REG[3]); //IP INICALIZADO EN CS
 
   if (flagD)
@@ -85,13 +84,12 @@ int main(/*int argc, char *argv[]*/)
     //mostramos por primera vez
     for (int i = 0; i < ds; i++)
       printf("%s\n", DISASEMBLER[i].cadena);
-  printf("\n");
+    printf("\n");
   }
 
-
-  while (REG[5]>=cs && REG[5] < ds)
+  while (REG[5] >= cs && REG[5] < ds)
   {
-    printf("%16X \n",RAM[REG[5]]);
+    printf("%16X \n", RAM[REG[5]]);
     proxinstruccion();
   }
 
