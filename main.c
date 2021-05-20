@@ -89,7 +89,7 @@ int main(/*int argc, char *argv[]*/)
 
   while (REG[5] >= cs && REG[5] < ds)
   {
-    printf("%16X \n", RAM[REG[5]]);
+    printf("ENTRA\n");
     proxinstruccion();
   }
 
