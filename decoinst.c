@@ -144,7 +144,7 @@ void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
     }
     else if (toA == 0x01) //DE REGISTRO
       *voA = &REG[voAux];
-    else if (toA == 0x10) //DIRECTO
+    else if (toA == 0x02) //DIRECTO
       *voA = &RAM[getPosicionAbsoluta(voAux)];
     else
     { //OP INDIRECTO
@@ -159,7 +159,7 @@ void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
     }
     else if (toB == 0x01)
       *voB = &REG[voBux];
-    else if (toB == 0x10)
+    else if (toB == 0x02)
       *voB = &RAM[getPosicionAbsoluta(voBux)];
     else //INDIRECTO
       *voB = &RAM[devuelveIndirecto(voBux)];
@@ -176,7 +176,7 @@ void traduceOperandos(int instruccion, int cantOperandos, int **voA, int **voB)
     }
     else if (toA == 0x01)
       *voA = &REG[voAux];
-    else if (toA == 0x10)
+    else if (toA == 0x02)
       *voA = &RAM[getPosicionAbsoluta(voAux)];
     else
       *voA = &RAM[devuelveIndirecto(voAux)];
@@ -637,7 +637,7 @@ void SYS(int *valA, int *valB)
         {
           fflush(stdin);
           if (vecReg[j].mnemo[0] != '\0')
-            sprintf(cad2, "%s = %15d |", vecReg[j].mnemo, REG[j]);
+            sprintf(cad2, "%s = %15d (%d|%d)|", vecReg[j].mnemo, REG[j], getParteAlta(REG[j]), getParteBaja(REG[j]));
           else
             sprintf(cad2, "%20s |", vecReg[j].mnemo);
           j++;
@@ -823,7 +823,7 @@ void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[])
       }
       else if (((inst >> 26) & 0x03) == 0x02)
         // operando 1 directo
-        sprintf(op1, " [%d],", ((inst >> 12) & 0x00FFF000));
+        sprintf(op1, " [%d],", ((inst >> 12) & 0xFFF));
       else
       { //OPERANDO 1 INDIRECTO
         truncado = (inst & 0x00FF0000) >> 16;
@@ -917,7 +917,6 @@ void proxinstruccion()
   REG[5]++;
   decInstruccion(instruccion, &cantOperandos, &mnemo);
   traduceOperandos(instruccion, cantOperandos, &voA, &voB);
-  fflush(stdin);
   vecFunciones[mnemo](voA, voB);
 }
 
@@ -1001,7 +1000,7 @@ int getPosicionAbsoluta(int valor)
   int lowV = getParteBaja(valor);
   int pos;
   pos = getParteBaja(REG[highV]) + lowV;
-  if (pos > getParteBaja(REG[highV]) && lowV <= getParteAlta(REG[highV]) && highV >= 0 && highV <= 3)
+  if (pos >= getParteBaja(REG[highV]) && lowV <= getParteAlta(REG[highV]) && highV >= 0 && highV <= 3)
     return pos;
   else
   {
