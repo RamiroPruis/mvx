@@ -572,14 +572,13 @@ void SYS(int *valA, int *valB)
     //STRING READ
     strcat(cad, " %s");
     scanf(cad, entrada);
-    int pos = getPosicionAbsoluta(REG[13]);
     i = 0;
     while (entrada[i] != '\0' && i < REG[12])
     {
-      RAM[pos + i] = entrada[i];
+      RAM[getPosicionAbsoluta(REG[13] + i)] = entrada[i];
       i++;
     }
-    RAM[pos + i] = '\0';
+    RAM[REG[13] + i] = '\0';
   }
   else if (*valA == 4)
   {
@@ -597,6 +596,9 @@ void SYS(int *valA, int *valB)
     }
     salida[i] = '\0';
     printf(cad, salida);
+  }
+  else if (*valA == 7){
+    system("clear");
   }
   else if (*valA == 15)
   { //F
