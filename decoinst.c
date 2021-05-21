@@ -566,6 +566,33 @@ void SYS(int *valA, int *valB)
       printf(cad, RAM[REG[0] + REG[13] + i], RAM[REG[0] + REG[13] + i], RAM[REG[0] + REG[13] + i]);
     }
   }
+  else if (*valA == 3){
+    //STRING READ
+    strcat(cad, " %s");
+    scanf(cad,entrada);
+    int pos = getPosicionAbsoluta(REG[13]);
+    i=0;
+    while(entrada[i] != '\0' && i<REG[12]){
+      RAM[pos+i] = entrada[i];
+      i++;
+    }
+    RAM[pos+i]='\0';
+  }
+  else if (*valA == 4){
+    //STRING WRITE
+    char salida[100];
+    i=0;
+    int pos = getPosicionAbsoluta(REG[13]);
+    strcat(cad, " %s");
+    if((REG[10] & 0x80)== 0)
+      strcat(cad,"\n");
+    while(RAM[pos+i] !='\0'){
+      salida[i]=RAM[pos+i];
+      i++;
+    }
+    salida[i]='\0';
+    printf(cad,salida);
+  }
   else if (*valA == 15)
   { //F
 

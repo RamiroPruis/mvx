@@ -88,9 +88,8 @@ int main(/*int argc, char *argv[]*/)
   }
 
   while (REG[5] >= cs && REG[5] < ds)
-  {
     proxinstruccion();
-  }
-  printf("%d",REG[10]);
+
+
   return 0;
 }
