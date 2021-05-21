@@ -529,15 +529,15 @@ void SYS(int *valA, int *valB)
     if (condChar == 0)
       for (i = 0; i < REG[12]; i++)
       {
-        printf(prompt, REG[13] + i);
-        scanf(cad, &RAM[REG[0] + REG[13] + i]);
+        printf(prompt, getPosicionAbsoluta(REG[13] + i));
+        scanf(cad, &RAM[getPosicionAbsoluta(REG[13] + i)]);
       }
     else
     {
-      printf(prompt, REG[13]);
+      printf(prompt, getPosicionAbsoluta(REG[13]));
       scanf("%s", entrada);
       for (i = 0; entrada[i]; i++)
-        RAM[REG[0] + REG[13] + i] = entrada[i];
+        RAM[getPosicionAbsoluta(REG[13] + i)] = entrada[i]; //Aunque no sea eficiente llamar a getPosicion para solo acceder a la siguiente, hay que hacerlo por un posible segmentation fault
     }
   }
   //Caso ESCRITURA
@@ -554,44 +554,49 @@ void SYS(int *valA, int *valB)
     if ((REG[10] & 0x100) == 0)
       strcat(cad, " \n");
 
+    int posicion = getPosicionAbsoluta(REG[13]); //Aca si podemos usar un auxiliar
     for (i = 0; i < REG[12]; i++)
     {
 
-      printf(prompt, REG[13] + i);
-      if (RAM[REG[0] + REG[13] + i] >= 32)
-        caracter = RAM[REG[0] + REG[13] + i];
+      printf(prompt, posicion + i);
+      if (RAM[posicion + i] >= 32)
+        caracter = RAM[posicion + i];
       else
         caracter = '.';
       printf(cad2, caracter);
-      printf(cad, RAM[REG[0] + REG[13] + i], RAM[REG[0] + REG[13] + i], RAM[REG[0] + REG[13] + i]);
+      printf(cad, RAM[posicion + i], RAM[posicion + i], RAM[posicion + i]);
     }
   }
-  else if (*valA == 3){
+  else if (*valA == 3)
+  {
     //STRING READ
     strcat(cad, " %s");
-    scanf(cad,entrada);
+    scanf(cad, entrada);
     int pos = getPosicionAbsoluta(REG[13]);
-    i=0;
-    while(entrada[i] != '\0' && i<REG[12]){
-      RAM[pos+i] = entrada[i];
+    i = 0;
+    while (entrada[i] != '\0' && i < REG[12])
+    {
+      RAM[pos + i] = entrada[i];
       i++;
     }
-    RAM[pos+i]='\0';
+    RAM[pos + i] = '\0';
   }
-  else if (*valA == 4){
+  else if (*valA == 4)
+  {
     //STRING WRITE
     char salida[100];
-    i=0;
+    i = 0;
     int pos = getPosicionAbsoluta(REG[13]);
     strcat(cad, " %s");
-    if((REG[10] & 0x80)== 0)
-      strcat(cad,"\n");
-    while(RAM[pos+i] !='\0'){
-      salida[i]=RAM[pos+i];
+    if ((REG[10] & 0x80) == 0)
+      strcat(cad, "\n");
+    while (RAM[pos + i] != '\0')
+    {
+      salida[i] = RAM[pos + i];
       i++;
     }
-    salida[i]='\0';
-    printf(cad,salida);
+    salida[i] = '\0';
+    printf(cad, salida);
   }
   else if (*valA == 15)
   { //F
@@ -873,7 +878,8 @@ void trunca(int *ValorOperando, int bitsmax)
   switch (bitsmax)
   {
   case 8:
-    if (*ValorOperando > 127 || *ValorOperando < -128){
+    if (*ValorOperando > 127 || *ValorOperando < -128)
+    {
       if ((*ValorOperando) >> 7)
         *ValorOperando |= 0xFFFFFF00;
       else
@@ -881,7 +887,8 @@ void trunca(int *ValorOperando, int bitsmax)
     }
     break;
   case 12:
-    if ((*ValorOperando > 2047 || *ValorOperando < -2048)){
+    if ((*ValorOperando > 2047 || *ValorOperando < -2048))
+    {
       if ((*ValorOperando & 0xFFF) >> 11) //Bit mas significativo de los 12bits es un 1 --> numero negativo
         *ValorOperando |= 0xFFFFF000;
       else
