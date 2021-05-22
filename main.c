@@ -48,7 +48,7 @@ int main(/*int argc, char *argv[]*/)
   //       }
   flagD = 1;
   flagB = 1;
-  if ((arch = fopen("Ejercicios assembler\\Ej1 (1).bin", "rb")) == NULL)
+  if ((arch = fopen("Ejercicios assembler\\Ej2.bin", "rb")) == NULL)
     return 1;
 
   //Encabezado
@@ -88,8 +88,10 @@ int main(/*int argc, char *argv[]*/)
   }
 
   while (REG[5] >= cs && REG[5] < ds)
+  {
+    //printf("%s\n", DISASEMBLER[REG[5]].cadena);
     proxinstruccion();
-
+  }
 
   return 0;
 }

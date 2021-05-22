@@ -555,7 +555,7 @@ void SYS(int *valA, int *valB)
       strcat(cad, " \n");
 
     int posicion = getPosicionAbsoluta(REG[13]); //Aca si podemos usar un auxiliar
-    for (i = 0; i < REG[12]; i++)
+    for (i = 0; i < REG[12] && RAM[posicion + i] != '\0'; i++)
     {
 
       printf(prompt, posicion + i);
@@ -999,7 +999,7 @@ void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[])
         if (truncado > 0)
           sprintf(op1, "[%s+%d]", reg[j].mnemo, truncado);
         else
-          sprintf(op1, "[%s-%d]", reg[j].mnemo, (unsigned int)truncado);
+          sprintf(op1, "[%s-%d]", reg[j].mnemo, ~truncado);
       }
       strcat(cad, op1);
     }

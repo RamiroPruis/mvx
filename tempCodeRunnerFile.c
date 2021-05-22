@@ -1,1 +1,1 @@
-traduceOperandos(int
+Ej2

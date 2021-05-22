@@ -118,7 +118,7 @@ int main(/*int argc, char *argv[]*/)
     //       }
     flagD = 1;
     flagB = 1;
-    if ((arch = fopen("Ejercicios assembler\\Ej1 (1).bin", "rb")) == NULL)
+    if ((arch = fopen("Ejercicios assembler\\Ej2.bin", "rb")) == NULL)
         return 1;
 
     //Encabezado
@@ -158,7 +158,10 @@ int main(/*int argc, char *argv[]*/)
     }
 
     while (REG[5] >= cs && REG[5] < ds)
+    {
+        //printf("%s\n", DISASEMBLER[REG[5]].cadena);
         proxinstruccion();
+    }
 
     return 0;
 }
@@ -707,7 +710,7 @@ void SYS(int *valA, int *valB)
             strcat(cad, " \n");
 
         int posicion = getPosicionAbsoluta(REG[13]); //Aca si podemos usar un auxiliar
-        for (i = 0; i < REG[12]; i++)
+        for (i = 0; i < REG[12] && RAM[posicion + i] != '\0'; i++)
         {
 
             printf(prompt, posicion + i);
@@ -1151,7 +1154,7 @@ void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[])
                 if (truncado > 0)
                     sprintf(op1, "[%s+%d]", reg[j].mnemo, truncado);
                 else
-                    sprintf(op1, "[%s-%d]", reg[j].mnemo, (unsigned int)truncado);
+                    sprintf(op1, "[%s-%d]", reg[j].mnemo, ~truncado);
             }
             strcat(cad, op1);
         }
