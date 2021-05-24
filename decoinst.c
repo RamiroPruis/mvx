@@ -599,197 +599,206 @@ void SYS(int *valA, int *valB)
   }
   else if (*valA == 5) // NEW(CX) -> DX
   {
-    int errorOverflow = 0;
-    int encontroEspacio = 0;
-    int posRAM = getParteAlta(REG[4]); // habria que verificar que no este ocupada por completo
-    int i, j, anterior;
+      int errorOverflow=0, encontroEspacio=0, posRAM, i, j, anterior;
 
-    //caso inicial
-    if (posRAM == 0xFFFF)
-    {
-      setParteAlta(&RAM[getParteBaja(REG[2])], getParteAlta(REG[2]) - 1);
-      setParteBaja(&RAM[getParteBaja(REG[2])], 0);
-      setParteAlta(&REG[4], 0);
-      setParteBaja(&REG[4], -1);
-    }
-
-    posRAM = getParteAlta(REG[4]) + getParteBaja(REG[2]); //puntero a Lista de Libres
-    while (encontroEspacio == 0 && errorOverflow == 0)
-    {
-      if (getParteAlta(RAM[posRAM]) > REG[12])
-      {
-        // Encontro espacio y divide el bloque
-        encontroEspacio = 1;
-
-        j = getParteBaja(REG[4]) + getParteBaja(REG[2]); //puntero a Lista de Ocupados
-        anterior = -1;
-        if (j != (0xFFFF + getParteBaja(REG[2])))
-          do
-          {
-            if ((j == getParteBaja(RAM[j]) + getParteBaja(REG[2])) || (j > getParteBaja(RAM[j]) + getParteBaja(REG[2]) && (posRAM < getParteBaja(RAM[j]) + getParteBaja(REG[2]) || posRAM > j)) || (posRAM < getParteBaja(RAM[j]) + getParteBaja(REG[2]) && posRAM > j))
-              anterior = j;
-            else
-              j = getParteBaja(RAM[j]) + getParteBaja(REG[2]);
-          } while (anterior == -1);
-        else
-          anterior = posRAM;
-
-        // HEADER nuevo bloque vacio
-        if (posRAM == getParteBaja(RAM[posRAM]) + getParteBaja(REG[2]))
-          setParteBaja(&RAM[posRAM + REG[12] + 1], posRAM + REG[12] + 1 - getParteBaja(REG[2]));
-        else
-          setParteBaja(&RAM[posRAM + REG[12] + 1], getParteBaja(RAM[posRAM]));
-        setParteAlta(&RAM[posRAM + REG[12] + 1], getParteAlta(RAM[posRAM]) - REG[12] - 1);
-
-        // modifica HEADER que apuntaba al bloque vacio
-        i = posRAM;
-        if (getParteBaja(RAM[i]) + getParteBaja(REG[2]) != i)
-        {
-          while ((getParteBaja(RAM[i]) + getParteBaja(REG[2])) != posRAM)
-            i = getParteBaja(RAM[i]) + getParteBaja(REG[2]);
-          setParteBaja(&RAM[i], posRAM - getParteBaja(REG[2]) + REG[12] + 1); //apunta al nuevo nodo vacio
-        }
-
-        // HEADER nuevo bloque ocupado
-        if (posRAM == anterior)
-          setParteBaja(&RAM[posRAM], anterior - getParteBaja(REG[2]));
-        else
-          setParteBaja(&RAM[posRAM], getParteBaja(RAM[anterior]));
-        setParteAlta(&RAM[posRAM], REG[12]);
-
-        // modifica HEADER del bloque ocupado anterior
-        setParteBaja(&RAM[anterior], posRAM - getParteBaja(REG[2]));
-
-        // actualiza HPH
-        if (posRAM == getParteAlta(REG[4]) + getParteBaja(REG[2]))
-          setParteAlta(&REG[4], getParteAlta(REG[4]) + REG[12] + 1);
-        setParteBaja(&REG[4], posRAM - getParteBaja(REG[2])); // actualiza HPL
-        REG[13] = posRAM + 1 - getParteBaja(REG[2]);          // setea DX
+      //caso inicial
+      if (REG[4] == 0xFFFFFFFF){
+        setParteAlta(&RAM[getParteBaja(REG[2])],getParteAlta(REG[2])-1);
+        setParteBaja(&RAM[getParteBaja(REG[2])],0);
+        setParteAlta(&REG[4],0);
+        setParteBaja(&REG[4],0xFFFF);
       }
-      else if (getParteAlta(RAM[posRAM]) == REG[12])
-      {
-        // Encontro espacio justo
-        encontroEspacio = 1;
 
-        j = getParteBaja(REG[4]) + getParteBaja(REG[2]);
-        anterior = -1;
-        do
-        {
-          if ((j == getParteBaja(RAM[j]) + getParteBaja(REG[2])) || (j > getParteBaja(RAM[j]) + getParteBaja(REG[2]) && (posRAM < getParteBaja(RAM[j]) + getParteBaja(REG[2]) || posRAM > j)) || (posRAM < getParteBaja(RAM[j]) + getParteBaja(REG[2]) && posRAM > j))
-            anterior = j;
-          else
-            j = getParteBaja(RAM[j]) + getParteBaja(REG[2]);
-        } while (anterior == -1);
+      if(getParteAlta(REG[4]) != -1){
+          posRAM = getParteAlta(REG[4]) + getParteBaja(REG[2]); //puntero a Lista de Libres
+          while(encontroEspacio == 0 && errorOverflow == 0){
+            if(getParteAlta(RAM[posRAM]) > REG[12])
+            {
+                // Encontro espacio y divide el bloque
+                encontroEspacio = 1;
+                j = getParteBaja(REG[4]) + getParteBaja(REG[2]); //puntero a Lista de Ocupados
+                anterior = -1;
+                if (j != (0xFFFF + getParteBaja(REG[2])))
+                    do{
+                        if((j == getParteBaja(RAM[j]) + getParteBaja(REG[2]))
+                            || (j>getParteBaja(RAM[j]) + getParteBaja(REG[2])
+                            && (posRAM < getParteBaja(RAM[j]) + getParteBaja(REG[2])
+                            || posRAM > j)) || (posRAM < getParteBaja(RAM[j]) + getParteBaja(REG[2])
+                            && posRAM > j))
+                                anterior = j;
+                        else
+                            j = getParteBaja(RAM[j]) + getParteBaja(REG[2]);
+                    }while(anterior==-1);
+                else
+                    anterior = posRAM;
 
-        // HEADER del anterior bloque vacio apunta al siguiente
-        i = posRAM;
-        if (getParteBaja(RAM[i]) + getParteBaja(REG[2]) != i)
-        {
-          while ((getParteBaja(RAM[i]) + getParteBaja(REG[2])) != posRAM)
-            i = getParteBaja(RAM[i]) + getParteBaja(REG[2]);
-          setParteBaja(&RAM[i], getParteBaja(RAM[posRAM]));
-        }
+                // HEADER nuevo bloque vacio
+                if (posRAM == getParteBaja(RAM[posRAM])+getParteBaja(REG[2]))
+                   setParteBaja(&RAM[posRAM + REG[12] + 1],posRAM + REG[12] + 1 - getParteBaja(REG[2]));
+                else
+                    setParteBaja(&RAM[posRAM + REG[12] + 1],getParteBaja(RAM[posRAM]));
+                setParteAlta(&RAM[posRAM + REG[12] + 1],getParteAlta(RAM[posRAM])-REG[12]-1);
 
-        // HEADER nuevo bloque ocupado
-        if (posRAM == anterior)
-          setParteBaja(&RAM[posRAM], anterior - getParteBaja(REG[2]));
-        else
-          setParteBaja(&RAM[posRAM], getParteBaja(RAM[anterior]));
+                // modifica HEADER que apuntaba al bloque vacio
+                i = posRAM;
+                if(getParteBaja(RAM[i])+getParteBaja(REG[2])!=i){
+                    while((getParteBaja(RAM[i]) + getParteBaja(REG[2])) != posRAM)
+                        i = getParteBaja(RAM[i]) + getParteBaja(REG[2]);
+                    setParteBaja(&RAM[i], posRAM - getParteBaja(REG[2]) + REG[12] + 1); //apunta al nuevo nodo vacio
+                }
 
-        // HEADER anterior apunta a nuevo bloque ocupado
-        setParteBaja(&RAM[anterior], posRAM - getParteBaja(RAM[2]));
+                // HEADER nuevo bloque ocupado
+                if (posRAM == anterior)
+                   setParteBaja(&RAM[posRAM],anterior-getParteBaja(REG[2]));
+                else
+                    setParteBaja(&RAM[posRAM],getParteBaja(RAM[anterior]));
+                setParteAlta(&RAM[posRAM],REG[12]);
 
-        // actualiza HPH
-        if (posRAM == getParteAlta(REG[4]) + getParteBaja(REG[2]))
-          setParteAlta(&REG[4], getParteBaja(RAM[i]));
-        setParteBaja(&REG[4], posRAM - getParteBaja(REG[2])); // actualiza HPL
-        REG[13] = posRAM + 1 - getParteBaja(REG[2]);          // setea DX
+                // modifica HEADER del bloque ocupado anterior
+                setParteBaja(&RAM[anterior], posRAM - getParteBaja(REG[2]));
+
+                // actualiza HPH
+                if(posRAM == getParteAlta(REG[4])+ getParteBaja(REG[2]))
+                    setParteAlta(&REG[4],getParteAlta(REG[4])+REG[12]+1);
+                setParteBaja(&REG[4],posRAM- getParteBaja(REG[2])); // actualiza HPL
+                REG[13] = posRAM+1 - getParteBaja(REG[2]); // setea DX
+            }
+            else if (getParteAlta(RAM[posRAM]) == REG[12])
+            {
+                // Encontro espacio justo
+                encontroEspacio = 1;
+
+                if(getParteBaja(REG[4])!=0xFFFF){
+                    j = getParteBaja(REG[4]) + getParteBaja(REG[2]);
+                    anterior = -1;
+                    do{
+                        if((j == getParteBaja(RAM[j]) + getParteBaja(REG[2])) || (j>getParteBaja(RAM[j]) + getParteBaja(REG[2]) && (posRAM < getParteBaja(RAM[j]) + getParteBaja(REG[2]) || posRAM > j)) || (posRAM < getParteBaja(RAM[j]) + getParteBaja(REG[2]) && posRAM > j))
+                            anterior = j;
+                        else
+                            j = getParteBaja(RAM[j]) + getParteBaja(REG[2]);
+                    }while(anterior==-1);
+                }else{
+                    anterior = posRAM;
+                }
+
+
+                if(getParteBaja(RAM[posRAM]) == posRAM-getParteBaja(REG[2])){
+                    // Unico espacio libre
+                    setParteAlta(&REG[4],0xFFFF);
+                }else{
+                    // HEADER del anterior bloque vacio apunta al siguiente
+                    i = posRAM;
+                    if(getParteBaja(RAM[i])+getParteBaja(REG[2])!=i){
+                        while((getParteBaja(RAM[i]) + getParteBaja(REG[2])) != posRAM)
+                            i = getParteBaja(RAM[i]) + getParteBaja(REG[2]);
+                        setParteBaja(&RAM[i],getParteBaja(RAM[posRAM]));
+                    }
+                }
+
+                // HEADER nuevo bloque ocupado
+                if (posRAM == anterior)
+                    setParteBaja(&RAM[posRAM],anterior-getParteBaja(REG[2]));
+                else
+                    setParteBaja(&RAM[posRAM],getParteBaja(RAM[anterior]));
+
+                // actualiza HPH
+                if(getParteBaja(RAM[posRAM]) != posRAM-getParteBaja(REG[2]))
+                    if(posRAM == getParteAlta(REG[4]) + getParteBaja(REG[2]))
+                        setParteAlta(&REG[4],getParteBaja(RAM[i]));
+
+                // HEADER anterior apunta a nuevo bloque ocupado
+                setParteBaja(&RAM[anterior],posRAM-getParteBaja(RAM[2]));
+
+                setParteBaja(&REG[4],posRAM- getParteBaja(REG[2])); // actualiza HPL
+                REG[13] = posRAM+1 - getParteBaja(REG[2]); // setea DX
+            }
+            else
+            {
+                // No encontro espacio
+                if(posRAM == getParteAlta(REG[4])){
+                    errorOverflow = 1; // No hay espacio disponible ERROR
+                    printf("ERROR:\tMemoria Insuficiente\n");
+                    exit(1);
+                }
+                posRAM = getParteBaja(RAM[posRAM]) + getParteBaja(REG[2]);
+            }
+          }
+          setParteAlta(&REG[13],2);
       }
       else
       {
-        // No encontro espacio
-        if (posRAM == getParteAlta(REG[4]))
-        {
-          errorOverflow = 1; // No hay espacio disponible ERROR
           printf("ERROR:\tMemoria Insuficiente\n");
           exit(1);
-        }
-        posRAM = getParteBaja(RAM[posRAM]) + getParteBaja(REG[2]);
       }
-    }
-    setParteAlta(&REG[13], 2);
   }
   else if (*valA == 6) // FREE
   {
-    int posRAM;
-    int encontroOcupado = 0;
-    int antLibre, i, j;
-    if (getParteBaja(REG[4]) == 0xFFFF)
-      return; // ERROR no hay espacio para liberar
-    else
-    {
-      posRAM = getParteBaja(REG[4]) + getParteBaja(REG[2]); //puntero a Lista de Ocupados
-      while (!encontroOcupado)
+      int posRAM;
+      int encontroOcupado = 0;
+      int antLibre,i,j;
+      if(getParteBaja(REG[4]) == 0xFFFF)
+        return;// ERROR no hay espacio para liberar
+      else
       {
-        if ((posRAM < getPosicionAbsoluta(REG[13])) && (getParteAlta(RAM[posRAM]) + posRAM >= getPosicionAbsoluta(REG[13])))
+        posRAM = getParteBaja(REG[4]) + getParteBaja(REG[2]); //puntero a Lista de Ocupados
+        while(!encontroOcupado)
         {
-          // Encuentra bloque en posRAM
-          encontroOcupado = 1;
-
-          j = getParteAlta(REG[4]) + getParteBaja(REG[2]); //puntero a Lista de Libres
-          antLibre = -1;
-          if (j != 0xFFFF + getParteBaja(REG[2]))
-            do
+            if((posRAM < getPosicionAbsoluta(REG[13])) && (getParteAlta(RAM[posRAM])+posRAM >= getPosicionAbsoluta(REG[13])))
             {
-              if ((j == (getParteBaja(RAM[j]) + getParteBaja(REG[2]))) || (j < posRAM && (getParteBaja(RAM[j]) + getParteBaja(REG[2])) > posRAM) || (j > posRAM && j > (getParteBaja(RAM[j]) + getParteBaja(REG[2])) && (getParteBaja(RAM[j]) + getParteBaja(REG[2])) > posRAM))
-                antLibre = j;
-              else
-                j = getParteBaja(RAM[j]) + getParteBaja(REG[2]);
-            } while (antLibre == -1);
-          else
-            antLibre = posRAM;
+                // Encuentra bloque en posRAM
+                encontroOcupado = 1;
 
-          // actualiza HPL
-          if (getParteBaja(REG[4]) + getParteBaja(REG[2]) == posRAM)
-          {
-            if (getParteBaja(RAM[posRAM]) == posRAM - getParteBaja(REG[2]))
-              setParteBaja(&REG[4], -1);
-            else
-              setParteBaja(&REG[4], getParteBaja(RAM[posRAM]));
-          }
+                j = getParteAlta(REG[4]) + getParteBaja(REG[2]); //puntero a Lista de Libres
+                antLibre = -1;
+                if (j != 0xFFFF + getParteBaja(REG[2]))
+                    do{
+                        if((j == (getParteBaja(RAM[j])+getParteBaja(REG[2]))) || (j<posRAM && (getParteBaja(RAM[j])+getParteBaja(REG[2]))>posRAM) || (j>posRAM && j>(getParteBaja(RAM[j])+getParteBaja(REG[2])) && (getParteBaja(RAM[j])+getParteBaja(REG[2]))>posRAM))
+                            antLibre = j;
+                        else
+                            j = getParteBaja(RAM[j])+getParteBaja(REG[2]);
+                    }while(antLibre==-1);
+                else
+                    antLibre = posRAM;
 
-          // actualiza HPH
-          if (getParteAlta(REG[4]) + getParteBaja(REG[2]) > posRAM)
-            setParteAlta(&REG[4], posRAM - getParteBaja(REG[2]));
+                // actualiza HPL
+                if(getParteBaja(REG[4])+getParteBaja(REG[2])==posRAM){
+                    if (getParteBaja(RAM[posRAM])== posRAM - getParteBaja(REG[2]))
+                        setParteBaja(&REG[4],-1);
+                    else
+                        setParteBaja(&REG[4],getParteBaja(RAM[posRAM]));
+                }
 
-          // cambio HEADER que apuntaba al bloque a liberar
-          i = posRAM;
-          while ((getParteBaja(RAM[i]) + getParteBaja(REG[2])) != posRAM)
-            i = getParteBaja(RAM[i]) + getParteBaja(REG[2]);
-          setParteBaja(&RAM[i], getParteBaja(RAM[posRAM]));
+                // actualiza HPH
+                if(getParteAlta(REG[4])+getParteBaja(REG[2])>posRAM)
+                    setParteAlta(&REG[4],posRAM-getParteBaja(REG[2]));
 
-          setParteBaja(&RAM[posRAM], getParteBaja(RAM[antLibre]));     // cambio HEADER del bloque a liberar
-          setParteBaja(&RAM[antLibre], posRAM - getParteBaja(REG[2])); // cambio HEADER del bloque libre anterior
 
-          // compuebo si quedan dos bloques libres contiguos
-          if (getParteAlta(RAM[antLibre]) + getParteBaja(REG[2]) + 1 == posRAM)
-          {
-            // Anterior bloque vacio
-            setParteAlta(&RAM[antLibre], getParteAlta(RAM[antLibre]) + getParteAlta(RAM[posRAM]) + 1);
-            setParteBaja(&RAM[antLibre], getParteBaja(RAM[posRAM]));
-            posRAM = antLibre;
-          }
-          if (getParteAlta(RAM[posRAM]) + posRAM + 1 == getParteBaja(RAM[posRAM]) + getParteBaja(REG[2]))
-          {
-            // Siguiente bloque vacio
-            setParteAlta(&RAM[posRAM], getParteAlta(RAM[posRAM]) + getParteAlta(RAM[getParteBaja(RAM[posRAM]) + getParteBaja(REG[2])]) + 1);
-            setParteBaja(&RAM[posRAM], getParteBaja(RAM[getParteBaja(RAM[posRAM]) + getParteBaja(REG[2])]));
-          }
+                // cambio HEADER que apuntaba al bloque a liberar
+                i = posRAM;
+                while((getParteBaja(RAM[i]) + getParteBaja(REG[2])) != posRAM)
+                    i = getParteBaja(RAM[i]) + getParteBaja(REG[2]);
+                setParteBaja(&RAM[i],getParteBaja(RAM[posRAM]));
+
+                setParteBaja(&RAM[posRAM],getParteBaja(RAM[antLibre]));  // cambio HEADER del bloque a liberar
+                setParteBaja(&RAM[antLibre],posRAM-getParteBaja(REG[2])); // cambio HEADER del bloque libre anterior
+
+
+                // compuebo si quedan dos bloques libres contiguos
+                if(getParteAlta(RAM[antLibre])+getParteBaja(REG[2])+1 == posRAM){
+                    // Anterior bloque vacio
+                    setParteAlta(&RAM[antLibre],getParteAlta(RAM[antLibre])+getParteAlta(RAM[posRAM])+1);
+                    setParteBaja(&RAM[antLibre],getParteBaja(RAM[posRAM]));
+                    posRAM = antLibre;
+                }
+                if(getParteAlta(RAM[posRAM])+posRAM+1 == getParteBaja(RAM[posRAM])+getParteBaja(REG[2])){
+                    // Siguiente bloque vacio
+                    setParteAlta(&RAM[posRAM],getParteAlta(RAM[posRAM])+getParteAlta(RAM[getParteBaja(RAM[posRAM])+getParteBaja(REG[2])])+1);
+                    setParteBaja(&RAM[posRAM],getParteBaja(RAM[getParteBaja(RAM[posRAM])+getParteBaja(REG[2])]));
+                }
+            }else
+                posRAM = getParteBaja(RAM[posRAM])+getParteBaja(REG[2]);
         }
-        else
-          posRAM = getParteBaja(RAM[posRAM]) + getParteBaja(REG[2]);
       }
-    }
   }
   else if (*valA == 7)
   {
@@ -833,10 +842,7 @@ void SYS(int *valA, int *valB)
         while (j < i * 4)
         {
           fflush(stdin);
-          if (vecReg[j].mnemo[0] != '\0')
-            sprintf(cad2, "%s = %15d (%d|%d)|", vecReg[j].mnemo, REG[j], getParteAlta(REG[j]), getParteBaja(REG[j]));
-          else
-            sprintf(cad2, "%20s |", vecReg[j].mnemo);
+          sprintf(cad2, "%s = %15d (%d|%d)|", vecReg[j].mnemo, REG[j], getParteAlta(REG[j]), getParteBaja(REG[j]));
           j++;
           strcat(cad, cad2);
         }
@@ -940,25 +946,36 @@ void desarmaPalabra(char rta[], char cad1[], char cad2[])
   }
 }
 
-void dissasembler(int instruccion, int i)
+void dissasembler(int instruccion, int *i)
 {
   char cad1[100] = {'\0'};
   char cad2[100] = {'\0'};
 
-  sprintf(cad1, "[%04d]: %02X %02X %02X %02X   %d: ", i, (instruccion >> 24) & 0xFF, (instruccion >> 16) & 0xFF, (instruccion >> 8) & 0xFF, (instruccion >> 0) & 0xFF, i + 1);
-  traduceIntruccion(cad2, instruccion, vecMnemo, vecReg); //Retorna en cad2 el "MOV ...."
+  sprintf(cad1, "[%04d]: %02X %02X %02X %02X   %d: ", *i, (instruccion >> 24) & 0xFF, (instruccion >> 16) & 0xFF, (instruccion >> 8) & 0xFF, (instruccion >> 0) & 0xFF, *i + 1);
+  traduceIntruccion(cad2, instruccion, vecMnemo, vecReg,i); //Retorna en cad2 el "MOV ...."
   strcat(cad1, cad2);                                     //Queda en cad 1 toda la expresion a guardar
-  strcpy(DISASEMBLER[i].cadena, cad1);
+  strcpy(DISASEMBLER[*i].cadena, cad1);
 }
 
-void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[])
+void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[], int *val)
 {
   int i, j;
   char op1[5] = "\0";
   int aver1 = (inst >> 28) & 0xF;
   int aver2 = cod[11].hex;
   int truncado;
-
+  char str[11];
+  //caso string
+  if ((inst & 0xFFFFFF00)==0){
+    j=0;
+    while (RAM[*val] != 0)
+       str[j++] = RAM[(*val)++];
+    str[j]='\0';
+    strcat(cad,"\"");
+    strcat(cad,str);
+    strcat(cad,"\"");
+    return;
+  }
   if (((inst >> 24) & 0xFF) == 0x000000FF)
   { // Sin operandos
     i = 24;
