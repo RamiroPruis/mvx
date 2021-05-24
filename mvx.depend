@@ -64,3 +64,17 @@
 	<stdio.h>
 	<string.h>
 
+1621726807 source:e:\users\ramiro\documents\facultad\3ro\arqui\maquina-virtual\mvx\mvx\main.c
+	<stdio.h>
+	<stdlib.h>
+	"decoinst.h"
+	<string.h>
+
+1621607497 e:\users\ramiro\documents\facultad\3ro\arqui\maquina-virtual\mvx\mvx\decoinst.h
+
+1621728498 source:e:\users\ramiro\documents\facultad\3ro\arqui\maquina-virtual\mvx\mvx\decoinst.c
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	"decoinst.h"
+
