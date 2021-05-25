@@ -90,35 +90,34 @@ int main(/*int argc, char *argv[]*/)
     FILE *arch;
     //  int instruccion;
     int i = 0, j = 0;
-    // int mnemo, cantOperandos;
-    //  int voAval, voBval;
-    //  int *voA = &voAval, *voB = &voBval;
+    int mnemo, cantOperandos;
+    int voAval, voBval;
+    int *voA = &voAval, *voB = &voBval;
     //size_t len = strlen(argv[1]);
     //const char *bin = &argv[1][len - 4];
 
-    // if (argc<2)
-    //   printf("Error. Faltan argumentos. Recomendacion:\n mvx.exe BinFilename [-b] [-c] [-d] (flags opcionales[]) \n");
-    // else
-    //   if (strcmp(bin,".bin")!=0) //SI LA EXTENSION NO ES .BIN
-    //       printf("Error. El archivo binario no es de tipo .bin \n");
-    //   else
-    //       if (argc>2){
-    //           j=3;
-    //           while (j<=argc){
-    //               if (strcmp(argv[j-1],"-b")==0)
-    //                   flagB=1;
-    //               else
-    //                   if (strcmp(argv[j-1],"-c")==0)
-    //                       flagC=1;
+    // if (argc < 2)
+    //     printf("Error. Faltan argumentos. Recomendacion:\n mvx.exe BinFilename [-b] [-c] [-d] (flags opcionales[]) \n");
+    // else if (strcmp(bin, ".bin") != 0) //SI LA EXTENSION NO ES .BIN
+    //     printf("Error. El archivo binario no es de tipo .bin \n");
+    // else if (argc > 2)
+    // {
+    //     j = 3;
+    //     while (j <= argc)
+    //     {
+    //         if (strcmp(argv[j - 1], "-b") == 0)
+    //             flagB = 1;
+    //         else if (strcmp(argv[j - 1], "-c") == 0)
+    //             flagC = 1;
 
-    //                   else
-    //                       flagD=1;
-    //               j++;
-    //           }
-    //       }
+    //         else
+    //             flagD = 1;
+    //         j++;
+    //     }
+    // }
     flagD = 1;
     flagB = 1;
-    if ((arch = fopen("Ejercicios assembler\\Ej4.bin", "rb")) == NULL)
+    if ((arch = fopen("Ejercicios assembler\\prueba2.bin", "rb")) == NULL)
         return 1;
 
     //Encabezado
@@ -145,6 +144,7 @@ int main(/*int argc, char *argv[]*/)
     else
         return 1;
 
+    flagD = flagB = 1;
     int ds = getParteBaja(REG[0]);
     int cs = getParteBaja(REG[3]);
     REG[5] = getParteBaja(REG[3]); //IP INICALIZADO EN CS
@@ -160,6 +160,8 @@ int main(/*int argc, char *argv[]*/)
 
     while (REG[5] >= cs && REG[5] < ds)
     {
+        printf("%s\n", DISASEMBLER[REG[5]].cadena);
+        //printf("%d\n", getPosicionAbsoluta(REG[7]));
         proxinstruccion();
     }
 
@@ -438,9 +440,8 @@ void MUL(int *valA, int *valB)
 
 void DIV(int *valA, int *valB)
 {
-
-    *valA = (int)*valA / (*valB);
     REG[9] = *valA % (*valB);
+    *valA = (int)*valA / (*valB);
     cambiaCC(*valA);
 }
 
@@ -613,19 +614,18 @@ void RET(int *valA, int *valB)
 void SLEN(int *valA, int *valB)
 {
     int largo = 0, pos;
-    pos = *valB; //posicion del primer char
+    pos = getPosicionAbsoluta(*valB); //posicion del primer char
     while (RAM[pos] != '\0')
     {
         largo++;
         pos++;
     }
-    largo++; //incluir \0
     *valA = largo;
 }
 
 void SMOV(int *valA, int *valB)
 {
-    int posA = *valA, posB = *valB;
+    int posA = getPosicionAbsoluta(*valA), posB = getPosicionAbsoluta(*valB);
 
     while (RAM[posB] != '\0')
     {
@@ -638,14 +638,14 @@ void SMOV(int *valA, int *valB)
 
 void SCMP(int *valA, int *valB)
 {
-    int posA = *valA, posB = *valB;
+    int posA = getPosicionAbsoluta(*valA), posB = getPosicionAbsoluta(*valB);
 
     do
     {
-        REG[8] = RAM[posA] - RAM[posB];
+        REG[9] = RAM[posA] - RAM[posB];
         posA++;
         posB++;
-    } while (RAM[posA] != '\0' && RAM[posB] != '\0' && REG[8] != 0);
+    } while (RAM[posA] != '\0' && RAM[posB] != '\0' && REG[9] == 0);
 }
 
 void SYS(int *valA, int *valB)
@@ -710,7 +710,7 @@ void SYS(int *valA, int *valB)
             strcat(cad, " \n");
 
         int posicion = getPosicionAbsoluta(REG[13]); //Aca si podemos usar un auxiliar
-        for (i = 0; i < REG[12] && RAM[posicion + i] != '\0'; i++)
+        for (i = 0; i < REG[12]; i++)
         {
 
             printf(prompt, posicion + i);
@@ -765,7 +765,7 @@ void SYS(int *valA, int *valB)
             setParteBaja(&REG[4], 0xFFFF);
         }
 
-        if (getParteAlta(REG[4]) != -1)
+        if (getParteAlta(REG[4]) != 0xFFFF)
         {
             posRAM = getParteAlta(REG[4]) + getParteBaja(REG[2]); //puntero a Lista de Libres
             while (encontroEspacio == 0 && errorOverflow == 0)
@@ -1043,15 +1043,10 @@ void pasoApaso(char rta[])
     int mnemo, cantOperandos;
 
     //La primer operacion que se ejecuta es justamente la que le sigue al breakpoint pues en el main ya se hizo el REG[5]++
-    while (REG[5] >= 0 && REG[5] < REG[0])
+    int ds = getParteBaja(REG[0]);
+    int cs = getParteBaja(REG[3]);
+    while (REG[5] >= cs && REG[5] < ds)
     {
-        //Obtener proxima instruccion
-        // instruccion = RAM[REG[5]];
-        // REG[5]++;
-        // decInstruccion(instruccion, &cantOperandos, &mnemo);
-        // traduceOperandos(instruccion, cantOperandos, &voA, &voB);
-        // printf("[%04d]: %02X %02X %02X %02X\n", REG[5], (instruccion >> 24) & 0xFF, (instruccion >> 16) & 0xFF, (instruccion >> 8) & 0xFF, (instruccion >> 0) & 0xFF);
-        // vecFunciones[mnemo](voA, voB); //Ejecuta
         proxinstruccion();
         printf("[%04d] cmd: ", REG[5]);
         fflush(stdin);

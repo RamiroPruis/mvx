@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
   FILE *arch;
   //  int instruccion;
   int i = 0, j = 0;
-    size_t len = strlen(argv[1]);
+  size_t len = strlen(argv[1]);
   const char *bin = &argv[1][len - 4];
 
   if (argc < 2)
@@ -38,12 +38,12 @@ int main(int argc, char *argv[])
         flagC=1;
         system("clear");
       }
-
       else
         flagD = 1;
       j++;
     }
   }
+
   if ((arch = fopen(argv[1], "rb")) == NULL)
     return 1;
 

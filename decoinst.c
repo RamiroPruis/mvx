@@ -457,19 +457,18 @@ void RET(int *valA, int *valB)
 void SLEN(int *valA, int *valB)
 {
   int largo = 0, pos;
-  pos = *valB; //posicion del primer char
+  pos = getPosicionAbsoluta(*valB); //posicion del primer char
   while (RAM[pos] != '\0')
   {
     largo++;
     pos++;
   }
-  largo++; //incluir \0
   *valA = largo;
 }
 
 void SMOV(int *valA, int *valB)
 {
-  int posA = *valA, posB = *valB;
+  int posA = getPosicionAbsoluta(*valA), posB = getPosicionAbsoluta(*valB);
 
   while (RAM[posB] != '\0')
   {
@@ -482,14 +481,14 @@ void SMOV(int *valA, int *valB)
 
 void SCMP(int *valA, int *valB)
 {
-  int posA = *valA, posB = *valB;
+  int posA = getPosicionAbsoluta(*valA), posB = getPosicionAbsoluta(*valB);
 
   do
   {
-    REG[8] = RAM[posA] - RAM[posB];
+    REG[9] = RAM[posA] - RAM[posB];
     posA++;
     posB++;
-  } while (RAM[posA] != '\0' && RAM[posB] != '\0' && REG[8] != 0);
+  } while (RAM[posA] != '\0' && RAM[posB] != '\0' && REG[9] == 0);
 }
 
 void SYS(int *valA, int *valB)
@@ -554,7 +553,7 @@ void SYS(int *valA, int *valB)
       strcat(cad, " \n");
 
     int posicion = getPosicionAbsoluta(REG[13]); //Aca si podemos usar un auxiliar
-    for (i = 0; i < REG[12] && RAM[posicion + i] != '\0'; i++)
+    for (i = 0; i < REG[12]; i++)
     {
 
       printf(prompt, posicion + i);

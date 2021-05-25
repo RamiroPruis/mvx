@@ -1,1 +1,1 @@
-Ej2
+RAM[posA]
