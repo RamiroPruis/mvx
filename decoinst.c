@@ -283,10 +283,9 @@ void MUL(int *valA, int *valB)
 
 void DIV(int *valA, int *valB)
 {
-
-  *valA = (int)*valA / (*valB);
-  REG[9] = *valA % (*valB);
-  cambiaCC(*valA);
+    REG[9] = *valA % (*valB);
+    *valA = (int)*valA / (*valB);
+    cambiaCC(*valA);
 }
 
 void SWAP(int *valA, int *valB)
@@ -610,7 +609,7 @@ void SYS(int *valA, int *valB)
       setParteBaja(&REG[4], 0xFFFF);
     }
 
-    if (getParteAlta(REG[4]) != -1)
+    if (getParteAlta(REG[4]) != 0xFFFF)
     {
       posRAM = getParteAlta(REG[4]) + getParteBaja(REG[2]); //puntero a Lista de Libres
       while (encontroEspacio == 0 && errorOverflow == 0)
@@ -888,15 +887,10 @@ void pasoApaso(char rta[])
   int mnemo, cantOperandos;
 
   //La primer operacion que se ejecuta es justamente la que le sigue al breakpoint pues en el main ya se hizo el REG[5]++
-  while (REG[5] >= 0 && REG[5] < REG[0])
+  int ds = getParteBaja(REG[0]);
+  int cs = getParteBaja(REG[3]);
+  while (REG[5] >= cs && REG[5] < ds)
   {
-    //Obtener proxima instruccion
-    // instruccion = RAM[REG[5]];
-    // REG[5]++;
-    // decInstruccion(instruccion, &cantOperandos, &mnemo);
-    // traduceOperandos(instruccion, cantOperandos, &voA, &voB);
-    // printf("[%04d]: %02X %02X %02X %02X\n", REG[5], (instruccion >> 24) & 0xFF, (instruccion >> 16) & 0xFF, (instruccion >> 8) & 0xFF, (instruccion >> 0) & 0xFF);
-    // vecFunciones[mnemo](voA, voB); //Ejecuta
     proxinstruccion();
     printf("[%04d] cmd: ", REG[5]);
     fflush(stdin);
@@ -1057,9 +1051,9 @@ void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[], int *val)
         trunca(&truncado, 8);
         BuscaRegistro((inst & 0x0000F000) >> 12, &j, reg);
         if (truncado > 0)
-          sprintf(op1, "[%s+%d]", reg[j].mnemo, truncado);
+          sprintf(op1, " [%s+%d],", reg[j].mnemo, truncado);
         else
-          sprintf(op1, "[%s-%d]", reg[j].mnemo, ~truncado + 1);
+          sprintf(op1, " [%s-%d],", reg[j].mnemo, ~truncado + 1);
       }
       strcat(cad, op1);
       truncado = inst & 0x00000FFF;
@@ -1123,7 +1117,7 @@ void trunca(int *ValorOperando, int bitsmax)
     }
     break;
   case 16:
-    if ((*ValorOperando >= 32767 || *ValorOperando <= -32768) && bitsmax == 16)
+    if (*ValorOperando >= 32767 || *ValorOperando <= -32768)
     {
       if ((*ValorOperando & 0xFFFF) >> 15)
         *ValorOperando |= 0xFFFF0000;

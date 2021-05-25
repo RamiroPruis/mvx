@@ -86,3 +86,17 @@
 
 1621944710 e:\datos\escritorio\mvx\mvx\decoinst.h
 
+1621978704 source:c:\users\maria\desktop\facu\5toc\arquitectura de computadoras\mv\mvx\decoinst.c
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	"decoinst.h"
+
+1621968536 c:\users\maria\desktop\facu\5toc\arquitectura de computadoras\mv\mvx\decoinst.h
+
+1621975971 source:c:\users\maria\desktop\facu\5toc\arquitectura de computadoras\mv\mvx\main.c
+	<stdio.h>
+	<stdlib.h>
+	"decoinst.h"
+	<string.h>
+
