@@ -33,6 +33,7 @@ SIGUE:      CMP [FX], 0
             JMP SIGUE
 
 NEGADO:     NOT [BP-1]
+            
             JMP SIGUE
 
 FIN:        MOV FX, BP

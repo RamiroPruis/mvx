@@ -888,15 +888,10 @@ void pasoApaso(char rta[])
   int mnemo, cantOperandos;
 
   //La primer operacion que se ejecuta es justamente la que le sigue al breakpoint pues en el main ya se hizo el REG[5]++
-  while (REG[5] >= 0 && REG[5] < REG[0])
+  int ds = getParteBaja(REG[0]);
+  int cs = getParteBaja(REG[3]);
+  while (REG[5] >= cs && REG[5] < ds)
   {
-    //Obtener proxima instruccion
-    // instruccion = RAM[REG[5]];
-    // REG[5]++;
-    // decInstruccion(instruccion, &cantOperandos, &mnemo);
-    // traduceOperandos(instruccion, cantOperandos, &voA, &voB);
-    // printf("[%04d]: %02X %02X %02X %02X\n", REG[5], (instruccion >> 24) & 0xFF, (instruccion >> 16) & 0xFF, (instruccion >> 8) & 0xFF, (instruccion >> 0) & 0xFF);
-    // vecFunciones[mnemo](voA, voB); //Ejecuta
     proxinstruccion();
     printf("[%04d] cmd: ", REG[5]);
     fflush(stdin);
