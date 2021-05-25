@@ -48,7 +48,7 @@ int main(/*int argc, char *argv[]*/)
   //       }
   flagD = 1;
   flagB = 1;
-  if ((arch = fopen("Ejercicios assembler\\str.bin", "rb")) == NULL)
+  if ((arch = fopen("Ejercicios assembler\\Ej4.bin", "rb")) == NULL)
     return 1;
 
   //Encabezado
@@ -59,11 +59,12 @@ int main(/*int argc, char *argv[]*/)
     creadicc(vecMnemo);
     creaReg(vecReg);
     while (fread(&RAM[i], sizeof(int), 1, arch) == 1)
-        i++;
-    if (flagD){
+      i++;
+    if (flagD)
+    {
       printf("Codigo:\n");
-      j=0;
-      while (j<i)
+      j = 0;
+      while (j < i)
       {
         dissasembler(RAM[j], &j);
         j++;
@@ -82,7 +83,7 @@ int main(/*int argc, char *argv[]*/)
   {
     //mostramos por primera vez
     for (int i = 0; i < ds; i++)
-      if (DISASEMBLER[i].cadena[i])
+      if (DISASEMBLER[i].cadena[0])
         printf("%s\n", DISASEMBLER[i].cadena);
     printf("\n");
   }
