@@ -117,7 +117,7 @@ int main(/*int argc, char *argv[]*/)
     // }
     flagD = 1;
     flagB = 1;
-    if ((arch = fopen("Ejercicios assembler\\Ej4.bin", "rb")) == NULL)
+    if ((arch = fopen("Ejercicios assembler\\prueba2.bin", "rb")) == NULL)
         return 1;
 
     //Encabezado
@@ -160,7 +160,7 @@ int main(/*int argc, char *argv[]*/)
 
     while (REG[5] >= cs && REG[5] < ds)
     {
-        //printf("%s\n", DISASEMBLER[REG[5]].cadena);
+        printf("%s\n", DISASEMBLER[REG[5]].cadena);
         //printf("%d\n", getPosicionAbsoluta(REG[7]));
         proxinstruccion();
     }
@@ -440,9 +440,8 @@ void MUL(int *valA, int *valB)
 
 void DIV(int *valA, int *valB)
 {
-
-    *valA = (int)*valA / (*valB);
     REG[9] = *valA % (*valB);
+    *valA = (int)*valA / (*valB);
     cambiaCC(*valA);
 }
 
@@ -615,19 +614,18 @@ void RET(int *valA, int *valB)
 void SLEN(int *valA, int *valB)
 {
     int largo = 0, pos;
-    pos = *valB; //posicion del primer char
+    pos = getPosicionAbsoluta(*valB); //posicion del primer char
     while (RAM[pos] != '\0')
     {
         largo++;
         pos++;
     }
-    largo++; //incluir \0
     *valA = largo;
 }
 
 void SMOV(int *valA, int *valB)
 {
-    int posA = *valA, posB = *valB;
+    int posA = getPosicionAbsoluta(*valA), posB = getPosicionAbsoluta(*valB);
 
     while (RAM[posB] != '\0')
     {
@@ -640,14 +638,14 @@ void SMOV(int *valA, int *valB)
 
 void SCMP(int *valA, int *valB)
 {
-    int posA = *valA, posB = *valB;
+    int posA = getPosicionAbsoluta(*valA), posB = getPosicionAbsoluta(*valB);
 
     do
     {
-        REG[8] = RAM[posA] - RAM[posB];
+        REG[9] = RAM[posA] - RAM[posB];
         posA++;
         posB++;
-    } while (RAM[posA] != '\0' && RAM[posB] != '\0' && REG[8] != 0);
+    } while (RAM[posA] != '\0' && RAM[posB] != '\0' && REG[9] == 0);
 }
 
 void SYS(int *valA, int *valB)
@@ -712,7 +710,7 @@ void SYS(int *valA, int *valB)
             strcat(cad, " \n");
 
         int posicion = getPosicionAbsoluta(REG[13]); //Aca si podemos usar un auxiliar
-        for (i = 0; i < REG[12] && RAM[posicion + i] != '\0'; i++)
+        for (i = 0; i < REG[12]; i++)
         {
 
             printf(prompt, posicion + i);
@@ -767,7 +765,7 @@ void SYS(int *valA, int *valB)
             setParteBaja(&REG[4], 0xFFFF);
         }
 
-        if (getParteAlta(REG[4]) != -1)
+        if (getParteAlta(REG[4]) != 0xFFFF)
         {
             posRAM = getParteAlta(REG[4]) + getParteBaja(REG[2]); //puntero a Lista de Libres
             while (encontroEspacio == 0 && errorOverflow == 0)
