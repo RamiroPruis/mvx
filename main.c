@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
   FILE *arch;
   //  int instruccion;
   int i = 0, j = 0;
-/*  size_t len = strlen(argv[1]);
+  size_t len = strlen(argv[1]);
   const char *bin = &argv[1][len - 4];
 
   if (argc < 2)
@@ -46,10 +46,7 @@ int main(int argc, char *argv[])
 
   if ((arch = fopen(argv[1], "rb")) == NULL)
     return 1;
-*/
-  if ((arch = fopen("prueba2.bin", "rb")) == NULL)
-    return 1;
-  flagD=1;
+
   //Encabezado
   cargaFunciones();
   iniciaEjecucion(arch, &i);
@@ -89,11 +86,11 @@ int main(int argc, char *argv[])
 
   while (REG[5] >= cs && REG[5] < ds)
   {
-    printf("%s\n", DISASEMBLER[REG[5]].cadena);
+    //printf("%s\n", DISASEMBLER[REG[5]].cadena);
     proxinstruccion();
   }
 
-  printf("Ejecucion Terminada. Gracias por utilizar MV21 -  ® Copyright © 2021 Grupo D MV Inc.");
+  printf("\nEjecucion Terminada. Gracias por utilizar MV21 -  ® Copyright © 2021 Grupo D MV Inc.");
 
   return 0;
 }

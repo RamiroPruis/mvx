@@ -383,7 +383,7 @@ void JNN(int *valA, int *valB)
 void NOT(int *valA, int *valB)
 {
 
-  *valA = ~(*valA) + 1;
+  *valA = ~(*valA);
   cambiaCC(*valA);
 }
 
@@ -495,8 +495,8 @@ void SYS(int *valA, int *valB)
 {
   char rta[20] = {"\0"};
   char prompt[10] = "";
-  char cad[500] = {"\0"};
-  char cad2[500] = {""};
+  char cad[1000] = {"\0"};
+  char cad2[1000] = {""};
   char caracter;
   char entrada[100];
   int i, condChar = 0;
@@ -852,7 +852,7 @@ void SYS(int *valA, int *valB)
         while (j < i * 4)
         {
           fflush(stdin);
-          sprintf(cad2, "%s = %15d (%d|%d)|", vecReg[j].mnemo, REG[j], getParteAlta(REG[j]), getParteBaja(REG[j]));
+          sprintf(cad2, "%s = %15d (%5d | %5d) |", vecReg[j].mnemo, REG[j], getParteAlta(REG[j]), getParteBaja(REG[j])," ");
           j++;
           strcat(cad, cad2);
         }
