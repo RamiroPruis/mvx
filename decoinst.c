@@ -456,39 +456,43 @@ void RET(int *valA, int *valB)
 
 void SLEN(int *valA, int *valB)
 {
-  int largo = 0, pos;
-  pos = getPosicionAbsoluta(*valB); //posicion del primer char
-  while (RAM[pos] != '\0')
-  {
-    largo++;
-    pos++;
-  }
-  *valA = largo;
+    int largo = 0, *pos;
+    pos = valB; //posicion del primer char
+    while (*pos != '\0')
+    {
+        largo++;
+        pos++;
+    }
+    *valA = largo;
 }
 
 void SMOV(int *valA, int *valB)
 {
-  int posA = getPosicionAbsoluta(*valA), posB = getPosicionAbsoluta(*valB);
+    int *posA, *posB;
+    posA = valA;
+    posB = valB;
 
-  while (RAM[posB] != '\0')
-  {
-    RAM[posA] = RAM[posB];
-    posA++;
-    posB++;
-  }
-  RAM[posA] = '\0';
+    while (*posB != '\0')
+    {
+        *posA = *posB;
+        posA++;
+        posB++;
+    }
+    *posA = '\0';
 }
 
 void SCMP(int *valA, int *valB)
 {
-  int posA = getPosicionAbsoluta(*valA), posB = getPosicionAbsoluta(*valB);
+    int *posA, *posB;
+    posA = valA;
+    posB = valB;
 
-  do
-  {
-    REG[9] = RAM[posA] - RAM[posB];
-    posA++;
-    posB++;
-  } while (RAM[posA] != '\0' && RAM[posB] != '\0' && REG[9] == 0);
+    do
+    {
+        REG[9] = *posA - *posB;
+        posA++;
+        posB++;
+    } while (*posA != '\0' && *posB != '\0' && REG[9] == 0);
 }
 
 void SYS(int *valA, int *valB)
@@ -566,24 +570,28 @@ void SYS(int *valA, int *valB)
     }
   }
   else if (*valA == 3)
-  {
-    //STRING READ
-    strcat(cad, " %s");
-    scanf(cad, entrada);
-    i = 0;
-    while (entrada[i] != '\0' && i < REG[12])
     {
-      RAM[getPosicionAbsoluta(REG[13] + i)] = entrada[i];
-      i++;
+        //STRING READ
+        //strcat(cad, " %s");
+        fflush(stdin);
+        fgets(entrada, 20, stdin);
+        entrada[strcspn(entrada, "\n")] = 0;
+        //scanf(cad, entrada);
+        i = 0;
+        while (entrada[i] != '\0' && i < REG[12])
+        {
+            RAM[getPosicionAbsoluta(REG[13] + i)] = entrada[i];
+            i++;
+        }
+        RAM[getPosicionAbsoluta(REG[13] + i)] = '\0';
     }
-    RAM[getPosicionAbsoluta(REG[13] + i)] = '\0';
-  }
   else if (*valA == 4)
   {
     //STRING WRITE
     char salida[100];
     i = 0;
     int pos = getPosicionAbsoluta(REG[13]);
+    sprintf(cad,prompt,pos);
     strcat(cad, " %s");
     if ((REG[10] & 0x80) == 0)
       strcat(cad, "\n");
@@ -969,7 +977,7 @@ void traduceIntruccion(char cad[], int inst, Tvec cod[], Tvec reg[], int *val)
   int aver1 = (inst >> 28) & 0xF;
   int aver2 = cod[11].hex;
   int truncado;
-  char str[11];
+  char str[500];
   //caso string
   if ((inst & 0xFFFFFF00) == 0)
   {

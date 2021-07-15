@@ -47,9 +47,13 @@ int main(int argc, char *argv[])
   if ((arch = fopen(argv[1], "rb")) == NULL)
     return 1;
 
+  //if ((arch = fopen("a.bin", "rb")) == NULL)
+  //  return 1;
   //Encabezado
   cargaFunciones();
   iniciaEjecucion(arch, &i);
+
+
   if (i == 0)
   {
     creadicc(vecMnemo);
@@ -74,7 +78,6 @@ int main(int argc, char *argv[])
   int ds = getParteBaja(REG[0]);
   int cs = getParteBaja(REG[3]);
   REG[5] = getParteBaja(REG[3]); //IP INICALIZADO EN CS
-
   if (flagD)
   {
     //mostramos por primera vez
@@ -86,8 +89,9 @@ int main(int argc, char *argv[])
 
   while (REG[5] >= cs && REG[5] < ds)
   {
-    //printf("%s\n", DISASEMBLER[REG[5]].cadena);
+    printf("%s \n", DISASEMBLER[REG[5]].cadena);
     proxinstruccion();
+
   }
 
   printf("\nEjecucion Terminada. Gracias por utilizar MV21 -  ® Copyright © 2021 Grupo D MV Inc.");
